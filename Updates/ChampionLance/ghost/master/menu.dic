@@ -1,0 +1,1618 @@
+﻿//---------------------------Menus--------------------------
+//This .dic file is primarily concerned with the double-click menus for each of your ghosts. If you don't want to have menus for your characters, you'd just have to delete the OnMouseDoubleClick functions near the end of mouse.dic and then ignore this file, as none of it will be called I believe. Menus can be cool though, since you can put stuff in them and create new functions if you know what you're doing. For example, I've added a lot of games and interactions and little linked icons to my Hunter Smoker ghost to keep track of their feelings and such. Much of that is pretty complicated though (and kind of messy, cough), so I won't go into it here, but I covered some of the concepts in the coding page of the walkthrough, and enterprising ghost makers can study the menu.dic file I set up for Hunter/Smoker and see how I put it together.
+
+//The complexity of this file depends on how customized you want your menus. If you just want to leave them as they are, then all you'll have to do is replace dialogue appropriately. Many of the options here can be ignored if you don't care. You only have to fill in the things that interest you! The default template dialogue will handle anything you don't. If you get bored or tired, you can skip a lot of these if it comes down to it. You can always go back and fill them in later too. Your ghost will function fine either way!
+
+//And of course, this file will always be waiting for you when you've gotten more familiar with ghosts and want to add cool features! It can be a flexible playground, but don't feel too stressed out about it. As mentioned, just fill in what comes to you and the template dialogue will cover the rest.
+
+
+
+//Make sure to read the walkthrough (http://www.ashido.com/ukagaka/) for more details about how to properly format ghost dialogue!
+//I will reiterate that you should be editing these in Notepad++, and in particular, you should set the Language to C (or Java I guess) to properly highlight all the text. It will make things A LOT EASIER for you, trust me! It will also help you keep track of your brackets in case you forget some. If you click on a line with a bracket in Notepad++, it should highlight where the other bracket ends, or turn purple if there's no finishing bracket (which you should definitely fix!)
+//It will also highlight my commented lines in green, so you'll know where they are. Any line beginning with // is a commented line that the code will not read. It's just for your reference!
+
+//If you see a big block of commented text you want to uncomment, highlight the text and then hit ctrl-shift-k in Notepad++ and that should uncomment it. Mostly this is intended for advanced users.
+
+
+//--OpenSakuraMenu
+//This is a bit of intro dialogue before the main character opens their menu. You can see below that there are three pieces of separate dialogue listed before it goes to MenuRun. The character will randomly choose one of those pieces of dialogue before opening the rest of their menu. You can customize this with individual greetings for the character, such as "Yes, %(username)?" or "Need something, %(username)?" or things like that. Note that none of the lines end with \e!
+//The \b2 tag tells the ghost to use their big balloon for this dialogue. If your menu has a lot of stuff, this'll probably look better than the small one.
+//If you don't want multiple responses before opening the menu, you can delete the dialogue and just leave MenuRun.
+
+OpenSakuraMenu
+{
+		"\0\s[0]\b2Oh?  Need something?"
+		"\0\s[0]\b2How can I help you?"
+		"\0\s[0]\b2What can I do for you?"
+		--
+		MainMenu
+}
+
+//--MenuRun
+//As you just saw above. This actually fills out the rest of the menu. If you're going to be adding or changing functions, this is where you'll be doing your edits.
+
+MainMenu : all
+ {	
+ 	wd = GetWeekDay
+ 	ap = GetAP
+	//These four statements basically get the day of the week, whether it's AM or PM, the hour, and the time. It's putting together the information to display the time at the bottom of the balloon. Pay it no mind.
+	--
+	"\n\n\_q\b2" //The \n\n means two new lines as detailed in the walkthrough, and \_q means quick session, meaning all the text from this point on will display instantly instead of a few letters at a time like normal ghost dialogue. You can ignore it.
+	--
+	if lastTalk != "" //What this does is check to see if the ghost has already said a random bit of dialogue on its own, essentially by seeing if the lastTalk thing is NOT empty (!= means "does not equal").
+	{
+	  "\![*]\q[Repeat Last Dialogue,OnLastTalk]\n\n[half]"
+	  //If the ghost has said something, it will then display this menu option. You can replace "Repeat Last Dialogue" with whatever caption you like, such as "What were you saying?" or "What did you say?" or "Could you repeat that?" or something like that.
+	  
+	  //*********************Advanced User Info*******************************
+	  //These text boxes are meant for those who have an interest in expanding or using more complicated functions in their ghost. Also for my own reference in the future since I plan on using this template too, haha. If you have no interest in any of this and just want to keep things as simple as possible, feel free to skip these boxes.
+	  
+	  //I briefly touched in bootend.dic about \q, but I'll again cover it here. Pay very close attention to how this bit of dialogue is formatted. You'll see it goes \![*]\q[Displayed Name,linkedfunction]. Breaking it down, \![*] puts the balloon's option icon in front of the choice (usually a > or something), \q sets up the choice, Displayed Name which is the text that will display in the ghost's balloon, then linkedfunction, which is what the choice is linked to when the user clicks it. As you go through this file, look at how every menu option is set up, and you will see they all follow this format, give or take a \![*]. If you're going to be adding new options to menus or creating your own functions and such, make sure you follow this format and learn it well. Make sure to read the coding page of the walkthrough.
+	  //***********************************************************************
+	}
+	--
+ 	"\![*]\q[Say Something,OnAiTalk]\n"
+	
+	//"\![*]\q[Say something 2,OnAiTalk]\n"
+	
+	//This option will force the ghost to say something from aitalk if the user clicks it. Just replace "Say something" with whatever caption you think would be appropriate.
+	//Advanced users, you can add multiple captions for any option you add to a menu you make just like this, as long as you separate it from the other options into its own section with two dashes above and below. Note that you can't do this if the Function above has ": all" after it, since that will put every potential option in. You'll have to set it your menu up differently to take --s into account. I commented it out here because of ": all" above, but you can see the basic idea.
+	--
+	"\![*]\q[Config Menu,configmenu]\n"
+	"\![*]\q[Functions,functionmenu]\n\n[half]"
+ 	"\![*]\q[Nevermind,CANCEL]\n\n\n[half]%(wd) %(nowhour):%(nowmin) %(ap), %(month)/%(day)/%(year)\e"
+	
+	//These three lead to the Config Menu, the Function menu, and Cancel. You can leave these alone if you like. All the envelopes at the end (see word.dic) basically display the year, month, day, weekday, and time.
+}
+
+//Leave this alone
+OnLastTalk 
+{
+"%(lastTalk)\e"
+}
+
+//This is figuring out what day of the week it is. Leave it alone.
+GetWeekDay
+{
+	if weekday == 0
+	{"Sun"}
+	elseif weekday == 1
+	{"Mon"}
+	elseif weekday == 2
+	{"Tue"}
+	elseif weekday == 3
+	{"Wed"}
+	elseif weekday == 4
+	{"Thu"}
+	elseif weekday == 5
+	{"Fri"}
+	else
+	{"Sat"}
+}
+
+//This is finding out whether it's AM or PM. Leave it alone.
+GetAP
+{
+ 	if hour >= 0 && hour <= 11
+ 		{"AM"}
+ 	else
+ 		{"PM"}
+}
+
+nowhour
+{
+	if hour12 == 0; "1"
+	else; "%(hour12)"
+}
+
+nowmin
+{
+	if minute >= 0 && minute <=9; "0%(minute)"
+	else; "%(minute)"
+}
+
+
+//If someone selects an option linked to BACKTOMENU, it will go back to MenuRun.
+//Advanced users, note that this is formatted as Select.linkedfunction? Remember how it went \q[Displayed Name,linkedfunction] above? When a user clicks an option that doesn't begin with On, they'll be linked to Select.linkedfunction. Pay close attention as we go through and you'll see this in action.
+
+Select.BackToMainMenu
+	{
+		MainMenu
+	}
+
+//If someone selects configmenu, this will lead to TalkConfig.
+Select.configmenu
+	{
+		TalkConfig
+	}
+
+//*********************Advanced User Info*******************************
+//Some of you may be wondering why some of these Select.options lead to another function. Why not just put the config menu coding under Select.configmenu, instead of linking to TalkConfig?
+//Basically any function that's preceded with Select. is limited in its complexity and can only be called within its own .dic file in my experience. Why should you care, you ask? Well, if you're going to link to this function any other way, such as linking it in other .dic files or as a page in a menu, it needs to be a stand-alone function so it can be properly called. I'm pretty sure.
+//The basic jist is this; if you're going to reuse whatever it is the option leads to, you should make it its own function. Otherwise, you can leave it in Select.option. As a rule of thumb I'd probably put any complicated stuff in its own function, then use the Select.option to call the full function as you can see above. Simple dialogue responses to a choice can stay as a Select.option though (Like "Do you like going to raves and partying? Yes/No"). Study what stays as a Select.option and what links to another Function as we go through the file.
+//***********************************************************************
+
+//--TalkConfig
+//This menu allows the user to change their name and other information, as well as put in their birthday and change how often the ghost speaks. You can restructure how this looks if you want, but it's perfectly functional as is. You can of course change the dialogue though if you like.
+//I commented out birthday and pronoun options, you can uncomment them if you want to add them back. They are optional! It's up to you if you want those features or not.
+
+TalkConfig : all
+{
+	"\0\b[2]\_q\" 
+	//This bit of dialogue sets up a large balloon and a quick session, like above, so all the text will appear immediately. The rest is formatted to display the information and options to change it. I wouldn't touch any of it if you don't know what you're doing.
+	//I'll briefly explain the font tags I used here. \f[bold,1] turns bold on, \f[bold,0] turns it off, not unlike a <b> tag. \f[sup,1] turns superscript on (making it tiny and above the text) and \f[sup,0] turns it off. I touch on these tags in the walkthrough on SakuraScript.
+	
+	"f[bold,1]Your name:\f[bold,0] %(username) \f[sup,1](\q[Change it?,TEACHNAME])\f[sup,0]\n"
+	
+	//If you want your user to set their pronouns, you can uncomment this menu option by removing the two slashes in front. Read more on the walkthrough about commenting.
+	
+	"\f[bold,1]Your pronouns:\f[bold,0] %(heshe)/%(himher)/%(hisher) \f[sup,1](\q[Change them?,TEACHPRONOUN])\f[sup,0]\n"
+	
+	//If you want your user to be able to set their birthday, you can uncomment this menu option.
+	
+	"\f[bold,1]Your birthday:\f[bold,0] %(birthdayprint) \f[sup,1](\q[Change it?,TEACHBDAY])\f[sup,0]\n\n"
+	"\f[bold,1]Talk Rate:\f[bold,0] - %(talktime) \f[sup,1](\q[Change it,talkinter])\f[sup,0]\n\n"
+	if firstbrowser == 1
+	{
+		"\f[bold,1]Homepage:\f[bold,0]"
+		--
+		if homepage != ""; "%(homepage)"
+		else; " Disabled"
+		--
+		" \f[sup,1](\q[Change it,homepageChange])\f[sup,0]\n\n"
+	}
+	
+	"\![*]\f[bold,1]Comment on open programs?\f[bold,0] (NOW : %(windowCheck))\n\q[ON,wincheckon] \q[OFF,wincheckoff]\n"
+	"\![*]\f[bold,1]Give self care reminders?\f[bold,0] (NOW : %(careCheck))\n\q[ON,careon] \q[OFF,careoff]\n\n"
+	
+		{
+		"\![*]Enable Uninstall? (NOW : %(deleteshitai))\n\q[ON,deleteon] \q[OFF,deleteoff]\n\n[half]\n"
+		}
+		
+	"\![*]\q[Back to the menu,BackToMainMenu]\e"
+}
+
+Select.homepageChange //homepage set for browser
+{
+	"\![open,inputbox,OnSetHomepage]"
+}
+
+//window watching
+Select.wincheckon
+{
+	windowCheck = "ON"
+	"\0\s[3]Oh, you'd like me to watch along with what you do?  I'd be honored!"	
+	--
+	"\x"
+	--
+	BackToMainMenu
+}
+
+Select.wincheckoff
+{
+	windowCheck = "OFF"
+	"\0\s[0]Oh?  You'd rather I didn't watch you?  I understand."	
+	--
+	"\x"
+	--
+	BackToMainMenu
+}
+
+//self care reminders
+Select.careon
+{
+	careCheck = "ON"
+	"\0\s[6]I'd be honored to help you take care of yourself!  After all, one can't be their strongest if they don't keep themself healthy!"
+	--
+	"\x"
+	--
+	BackToMainMenu
+}
+
+Select.careoff
+{
+	careCheck = "OFF"
+	"\0\s[0]You don't want any reminders?  Very well."
+	"\0\s[0]Very well, I won't nag you."
+	"\0\s[0]Of course, I'm sure you're more than capable of taking care of yourself."
+	--
+	"\x"
+	--
+	BackToMainMenu
+}
+
+
+// ______                                                 _____ _             _   
+// | ___ \                                               /  ___| |           | |  
+// | |_/ / __ ___  _ __   ___  _   _ _ __  ___   ______  \ `--.| |_ __ _ _ __| |_ 
+// |  __/ '__/ _ \| '_ \ / _ \| | | | '_ \/ __| |______|  `--. \ __/ _` | '__| __|
+// | |  | | | (_) | | | | (_) | |_| | | | \__ \          /\__/ / || (_| | |  | |_ 
+// \_|  |_|  \___/|_| |_|\___/ \__,_|_| |_|___/          \____/ \__\__,_|_|   \__|
+                                                                               
+                                                                               
+
+
+
+//This and the next few set up the pronouns, as you can see by the linkedfunction names. You can replace "\0\s[0]What pronouns do you want?" with your own dialogue if you prefer, but leave the rest of it alone.
+//If you're not going to add this feature, you can ignore these. I marked where the pronoun section begins and ends with some ascii banners. :3
+
+Select.TEACHPRONOUN : all
+{
+	"\0\s[0]What pronouns would you like?\w5\n\n[half]\_q"
+	"\![*]\q[He-His-Him,choicemasc]\n"
+	"\![*]\q[She-Her-Her,choicefem]\n"	
+	"\![*]\q[They-Their-Them,choiceneither]\e"
+}
+
+Select.choicemasc
+{
+	presuffix = "masculine"
+	himher = "him"
+	heshe = "he"
+	hisher = "his"
+	hesshes = "he's"
+	--
+	"\0\s[0]Your pronouns are now he him and his.\e"
+	//Leave the part above the double dashes alone. You can replace the snip of dialogue however with whatever you like.
+}
+
+Select.choicefem
+{
+	presuffix = "feminine"
+	himher = "her"
+	heshe = "she"
+	hisher = "her"
+	hesshes = "she's"
+	--
+	"\0\s[0]Your pronouns are now she her and hers.\e"
+	//as above, you can also replace this dialogue.
+}
+
+Select.choiceneither
+{
+	presuffix = "undefine"
+	himher = "them"
+	heshe = "they"
+	hisher = "their"
+	hesshes = "they're"
+	--
+	"\0\s[0]Your pronouns are now they them and their.\e"
+	//and this one.
+}
+
+//Here are some examples of these envelopes in use.
+//"%(heshe) left that there."
+//"%(hisher) work is really cool."
+//"I'll ask %(himher) later."
+//"%(hesshes) really good at it."
+
+//These envelopes only apply if the pronouns are set! If the user can't set their pronouns, that then you don't have to think about these envelopes.
+
+
+
+// ______                                                 _____          _ 
+// | ___ \                                               |  ___|        | |
+// | |_/ / __ ___  _ __   ___  _   _ _ __  ___   ______  | |__ _ __   __| |
+// |  __/ '__/ _ \| '_ \ / _ \| | | | '_ \/ __| |______| |  __| '_ \ / _` |
+// | |  | | | (_) | | | | (_) | |_| | | | \__ \          | |__| | | | (_| |
+// \_|  |_|  \___/|_| |_|\___/ \__,_|_| |_|___/          \____/_| |_|\__,_|
+                                                                        
+                                                                        
+
+
+
+
+
+
+//These two options toggle whether or not you can delete your ghost. Leave them alone.
+
+Select.deleteon
+{
+	deleteshitai = "ON"
+	TalkConfig
+}
+
+Select.deleteoff
+{
+	deleteshitai = "OFF"
+	TalkConfig
+}
+
+
+
+
+  // ____  _      _   _         _                       ____  _             _   
+ // | __ )(_)_ __| |_| |__   __| | __ _ _   _          / ___|| |_ __ _ _ __| |_ 
+ // |  _ \| | '__| __| '_ \ / _` |/ _` | | | |  _____  \___ \| __/ _` | '__| __|
+ // | |_) | | |  | |_| | | | (_| | (_| | |_| | |_____|  ___) | || (_| | |  | |_ 
+ // |____/|_|_|   \__|_| |_|\__,_|\__,_|\__, |         |____/ \__\__,_|_|   \__|
+                                     // |___/                                   
+
+
+//This next set of functions handles inputting the user's birthday. If you don't want this to be a feature, you can ignore all of this. I marked where the birthday code starts and ends for you with some good old-fashioned ascii banners. :3
+
+Select.TEACHBDAY
+	{	
+		"\0\s[0]Oh, you'd like to tell me your birthday?  What month were you born? \w8Name or number is fine.\![open,inputbox,OnUserBornMonth,-1]\e"
+		
+		//You can replace the dialogue up to the \![open,inputbox,OnUserBornMonth,-1] tag, leave that alone. You'll need the input box to get the information.
+		
+		//*********************Advanced User Info*******************************
+		//I also touched on this in bootend.dic and explained it in the walkthrough page on coding, but I'll also go into it here. I'm going to break down the tag there at the end of the sentence so you know what it's doing. Basically, \! means a function is going to happen, open tells it to open something, inputbox tells it to open an input box, and OnUserBornMonth is the function the input box will be linked to, which is just below here. -1 means the input box should not time out. If you want to add input boxes to some new function for whatever reason, you should follow this basic format.
+		//On a related note, you can raise any function at the end of any piece of dialogue by using this format - \![raise,InsertFunctionName]. This can be handy for testing things if the function is hard to get to run otherwise.
+		//***********************************************************************
+	}
+
+//--OnUserBornMonth
+//This takes the value that the user put into the input box above and evaluates it. Most of this you won't have to touch, but I'll explain what it's doing anyway. I'll point out where you can change the dialogue.
+
+OnUserBornMonth
+{
+	_tempmonth = TOSTR(reference0) //this stores what the user put in as a variable called _tempmonth
+	_tempmonth = TOLOWER(_tempmonth) //changes it to lowercase
+	
+	//this is attaching the right value to the input from the user
+	if _tempmonth == "january" || _tempmonth == "1" {bornmonth = 1; bornmonthprint = "January"}
+	elseif _tempmonth == "february" || _tempmonth == "2" {bornmonth = 2; bornmonthprint = "February"}
+	elseif _tempmonth == "march" || _tempmonth == "3" {bornmonth = 3; bornmonthprint = "March"}
+	elseif _tempmonth == "april" || _tempmonth == "4" {bornmonth = 4; bornmonthprint = "April"}
+	elseif _tempmonth == "may" || _tempmonth == "5" {bornmonth = 5; bornmonthprint = "May"}
+	elseif _tempmonth == "june" || _tempmonth == "6" {bornmonth = 6; bornmonthprint = "June"}
+	elseif _tempmonth == "july" || _tempmonth == "7" {bornmonth = 7; bornmonthprint = "July"}
+	elseif _tempmonth == "august" || _tempmonth == "8" {bornmonth = 8; bornmonthprint = "August"}
+	elseif _tempmonth == "september" || _tempmonth == "9" {bornmonth = 9; bornmonthprint = "September"}
+	elseif _tempmonth == "october" || _tempmonth == "10" {bornmonth = 10; bornmonthprint = "October"}
+	elseif _tempmonth == "november" || _tempmonth == "11" {bornmonth = 11; bornmonthprint = "November"}
+	elseif _tempmonth == "december" || _tempmonth == "12" {bornmonth = 12; bornmonthprint = "December"}
+	
+	else //if the month isn't a valid month, like 32 or something.
+	{
+			"\0\s[8]Hm, I don't think that's a real month... Why don't you try again?"
+			--
+			"\![open,inputbox,OnUserBornMonth,-1]\![set,balloontimeout,-1]\e"
+			
+			//You can replace this dialogue in the first line. You need to leave the tag for the input box so they can put in a correct month. That last tag there for ![set,balloontimeout,-1] makes it so the input box won't time out if the user takes too long.
+	}
+	--
+	//If it's a valid month
+	
+	"\0\s[0]So you were born in %(bornmonthprint).\n\w8And what day were you born on?"
+	--
+	"\![open,inputbox,OnUserBornDay,-1]\![set,balloontimeout,-1]\e"
+	
+	//Here you can see the use of a bornmonthprint envelope to show the user what month they put in. Notice that it opens an inputbox at the end the same way the one above did. You can replace the dialogue in the first line just as with above.
+}
+
+//This adds an appropriate suffix to the number for the day. No need to mess with this.
+
+Printday
+{
+	if bornday == 1 || bornday == 21 || bornday == 31
+	{	"%(bornday)st"	}
+	elseif bornday == 2 || bornday == 22
+	{	"%(bornday)nd"	}
+	elseif bornday == 3 || bornday == 23
+	{	"%(bornday)rd"	}
+	else
+	{	"%(bornday)th"	}
+}	
+
+//--OnUserBornDay
+//This is much like the above function OnUserBornMonth. It'll take the value the user put in for the day and analyze it. Again, there'll be comments explaining how it works, but all you really need to do is change the dialogue appropriately. I'll point out where you can add new dates to check for.
+
+OnUserBornDay
+{
+	_tempday = reference0 //storing the input in _tempday
+	_tempday = TOLOWER(_tempday) //changes it to lowercase
+	_tempday = REPLACE(_tempday,"st","") //if the user types something like 2nd, 3rd, etc, this will make it just the number. It'll just add the suffix back later on the one that actually shows.
+	_tempday = REPLACE(_tempday,"nd","")
+	_tempday = REPLACE(_tempday,"rd","")
+	_tempday = REPLACE(_tempday,"th","")
+	_tempday = TOINT(_tempday) //Converts it to an integer
+	
+	if ((bornmonth == 1 || bornmonth == 3 || bornmonth == 5 || bornmonth == 7 || bornmonth == 8 || bornmonth == 10 || bornmonth == 12) && _tempday >= 1 && _tempday <= 31) || (bornmonth == 2 && _tempday >= 1 && _tempday <= 29) || ((bornmonth == 4 || bornmonth == 6 || bornmonth == 9 || bornmonth == 11) && _tempday >= 1 && _tempday <= 30) //This ugly function checks if the day falls into a valid range. If it does, we set some variables and continue down.
+	{
+		bornday = _tempday
+		borndayprint = Printday
+		userbirthday = "%(bornmonth)month %(bornday)day"
+		birthdayprint = "%(bornmonthprint) %(borndayprint)"
+		
+		"%(birthchecked)"
+		//Mostly defining envelopes and values in here. No need to touch any of this! Eagle-eyed readers will notice the new envelope birthchecked on its own line like a tiny king. We'll get to that momentarily, but pay it no mind for now.
+	}
+	else //If the day isn't valid, like the 10046th or something, this will open the input box again and have a \e so the dialogue below doesn't play. You can replace the dialogue in the first line here.
+	{
+		"\0\s[8]Hm, I don't think that's a real month... Why don't you try again?"
+		--
+		"\![open,inputbox,OnUserBornDay,-1]\e"
+	}	
+}
+
+//--birthchecked
+//This is the new envelope you saw me point out above. As you can see here, you can actually call dialogue in a function with an envelope, even when it has if and else statements like here! Which can be pretty handy. Again, more on envelopes in word.dic. Creative ghostmakers can find handy ways to exploit this, I'm sure.
+
+birthchecked
+{
+	if userbirthday == dayslot //if today is the user's birthday
+		{
+			"\0\s[2]Your birthday is TODAY?  Why didn't you say so sooner?  \s[5]Happy birthday, %(username)!\e"
+			//replace this dialogue with whatever you like
+		}
+	elseif userbirthday == "2month 29day"
+		{
+			"\0\s[0]You were born on a leap day, %(username)?  How rare!  Although, it must be rather unfortunate only being able to celebrate your true birthday every few years.\e"
+			//As you can see, you can set up an elseif statement to check if the user's birthday is any day you want! More on elseif statements in bootend.dic. In this case, there's specialized dialogue if the user was born on Christmas. You can replace this with whatever you like, or change the date you're checking as well, like to one of your character's birthdays if you want. You can also delete this elseif if you don't care.
+		}
+	else //if the birthday is not listed above.
+		{
+			"\0\s[0]Your birthday is %(bornmonthprint) %(borndayprint)?  I won't forget it!\e"
+			//note the use of envelopes to display the newly set birthday properly. You can replace this dialogue as well, and you can use %(bornmonthprint) and %(borndayprint) to display the month and day in the new dialogue, if you want.
+		}
+}
+
+
+
+  // ____  _      _   _         _                       _____           _ 
+ // | __ )(_)_ __| |_| |__   __| | __ _ _   _          | ____|_ __   __| |
+ // |  _ \| | '__| __| '_ \ / _` |/ _` | | | |  _____  |  _| | '_ \ / _` |
+ // | |_) | | |  | |_| | | | (_| | (_| | |_| | |_____| | |___| | | | (_| |
+ // |____/|_|_|   \__|_| |_|\__,_|\__,_|\__, |         |_____|_| |_|\__,_|
+                                     // |___/                             
+
+
+
+
+
+
+
+//--Talk Rate
+//This is when the user chooses to adjust the talk rate in the config menu. The talk rate is how often the ghost will read some dialogue from aitalk.dic.
+
+
+Select.talkinter : all
+ 	{
+ 		"\0\s[0]\b2How often would you like to hear from me?  The interval is currently set to %(talktime)."
+		//note the new envelope here for %(talktime). You'll see it again in a second. You can replace the dialogue above with whatever you like, just make sure it ends with ./ and not \e.
+ 		"\0\n\n[half]"
+		"\![*]\q[Randomly,TALKRAND]\n"
+ 		"\![*]\q[Every 30 seconds,TALKMAX]\n"
+		"\![*]\q[Every minute,TALKHIGH]\n"
+ 		"\![*]\q[Every 3 minutes,TALKNORMAL]\n"
+		"\![*]\q[Every 5 minutes,TALKPOOR]\n"
+ 		"\![*]\q[Don't speak,TALKNONE]\n\n[half]"
+		"\![*]\q[Don't change,TalksTill]\e"
+	}
+
+//If the user doesn't want to change the rate. You can change all of the dialogue in any of these options if you want to reflect the choice the user made. You TECHNICALLY could also change the value in talktime to reflect some other way of measuring time but I wouldn't recommend it, it'd just be confusing I'm sure.
+Select.TalksTill
+	{
+		"\0\s[0]Oh?  You don't want to change it?  Very well.  I'll keep talking at the same rate then.\e"
+	}
+
+Select.TALKRAND
+	{
+		//basically every time OnAITalk happens it'll pick a random aitalkinterval. more at aitalk.dic
+		talktime = "randomly"
+		talkraterand = 1 //enable random talk rate
+	
+		"\0\s[0]Alright!  I'll speak up whenever I think of something interesting to say.\e"
+	}
+
+//If the user chooses every 30 seconds.
+Select.TALKMAX
+	{
+ 		talktime = "30 seconds" //this sets up the envelope properly
+		aitalkinterval = 30 //this changes the actual rate
+		talkraterand = 0 //disable random talk rate
+		
+ 		"\0\s[0]I will speak every 30 seconds.\e"
+	}
+
+//If the user chooses every minute.
+Select.TALKHIGH
+	{
+ 		talktime = "minute"
+		aitalkinterval = 60
+		talkraterand = 0 //disable random talk rate
+		
+ 		"\0\s[0]I will speak every minute.\e"
+	}
+
+//If the user chooses every three minutes.
+Select.TALKNORMAL
+	{
+ 		talktime = "3 minutes"
+		aitalkinterval = 180
+		talkraterand = 0 //disable random talk rate
+		
+ 		"\0\s[0]I will speak every three minutes.\e"
+	}
+
+//If the user chooses every five minutes. This is the default rate the ghost will start up in, as seen in bootend.dic.
+Select.TALKPOOR
+	{
+ 		talktime = "5 minutes"
+		aitalkinterval = 300
+		talkraterand = 0 //disable random talk rate
+		
+ 		"\0\s[0]I will speak every five minutes.\e"
+	}
+
+//If the user chooses to not have them speak. This is one case where you MIGHT want to make talktime equal something else, if you have a snappier way of saying the ghost won't talk. Make sure it flows well in your menus though, since it will be displayed in your config menu.
+Select.TALKNONE
+	{
+ 		talktime = "...actually I won't talk at all"
+		aitalkinterval = 0
+		talkraterand = 0 //disable random talk rate
+		
+		"\0\s[4]Oh?  You don't want to hear from me at all...?  Very well then, I suppose...\e"
+	}
+
+
+//This is when the user chooses to change their name. It's linked to the functions outlined in nameteach.dic. Nothing to touch here.
+Select.TEACHNAME
+	{
+		OnTeachName	
+	}
+
+
+//If the user selects cancel in a menu. Replace as you like, or just leave them blank.
+Select.CANCEL
+	{
+		"\0\s[0]Oh?  Changed your mind?\e"
+		"\0\s[0]Looking for something else?\e"
+		"\0\s[0]Not what you're looking for?\e"
+ 	}
+
+	
+//In the MenuRun function above, if someone selects Functions (linked to functionmenu), it will take them here to Select.functionmenu.
+
+//If you want to have your ghost pick from multiple intro lines for this menu, you can uncomment FunctionMenuIntros here, and add in dialogue as you like.
+
+FunctionMenuIntros : nonoverlap
+{	
+		//I mentioned this above in MenuRun, but you can have a set of multiple different responses that may randomly appear when the menu is opened. Try opening this menu yourself with the template to see how it works. The character will randomly choose one line as the intro. 
+		//If you don't want to deal with this, just delete the extra lines and leave one. Otherwise, replace the dialogue below as you like, but note that they don't end with \e here.
+		
+		"\0\s[0]\b2Oh?  What would you like me to do?\n\n"
+ 		"\0\s[0]\b2What can I do for you?\n\n"
+		"\0\s[0]\b2How can I help you?\n\n"
+		"\0\s[0]\b2Here's what I can do!\n\n"
+}
+
+Select.functionmenu : all
+{
+ 		FunctionMenuIntros	
+		//this line ^ calls one of the intros above. If you are using the extra intros, you can uncomment this line.
+		
+		//the -- splits the intros and the menu choices
+		--
+		
+		//the actual menu options.
+		
+		"\![*]\q[Update,keroupdatecheck]\n"
+		"\![*]\q[Open SSP Preferences,sspconfig]\n\n"
+		"\![*]\q[Reminders,OnGenReminders]\n"
+		"\![*]\q[Search Online...,lookup]\n"
+		"\![*]\q[Open Browser,OnRequestBrowser]\n"
+ 		"\![*]\q[Open Calendar,CALENDAR]\n"
+		"\![*]\q[Open Calculator,calc]\n"
+		"\![*]\q[Open Notepad,notepad]\n"
+		"\![*]\q[Check Email,MailCheck]\n"
+		"\![*]\q[Empty Recycle Bin,ChoiceGarbagecan]\n"
+		"\![*]\q[Task Manager,starttaskman]\n\n"		
+		
+		"\![*]\q[Bug report,bugreport]\n"
+		"\![*]\q[System Information,ChoiceSystemInformation]\n"
+		"\![*]\q[Test variable,testvariable]\n\n"
+		
+ 		"\![*]\q[Back to main menu,BackToMainMenu]\e"
+}
+
+//When clicked, this will automatically tell the ghost to check for updates. More detail on updates in etc.dic. You can leave this alone.
+Select.keroupdatecheck
+{
+	"\0\s[0]\![updatebymyself]\e"
+}
+
+//When the user chooses SSP preferences. This will open the same window that shows up if you right click your ghost and go to Utilities - Preferences. You don't have to write dialogue here if you don't want to, the template's default dialogue will handle it, but it is an option.
+Select.sspconfig
+{
+	"\0\s[0]Will do!  Opening the SSP config menu.\w8\![open,configurationdialog]\e"
+	
+	//Again, you can replace up to the \! tag.
+}
+
+//Browser and search online goes here
+OnRequestBrowser
+{	
+	if firstbrowser != 1 //basically never launched a browser before, asks for homepage
+	{
+		"\0\s[0]Oh, you'd like me to open the browser?  Certainly!  Before I do that, would you like to set a homepage?  It could be your chosen search engine or just your favorite site; whatever you'd prefer.  That way when I open the browser, I'll open it with your chosen page."
+		--
+		"\![open,inputbox,OnSetHomepage]" //...set homepage, described below
+	}
+	else
+	{
+		//if OnBrowserCheck == 1
+		//if AppCheck("Internet Explorer","Firefox","Opera","Chrome","Chromium","Vivaldi","Edge","Yandex") //do we even need == 1 like. it's either 0 or 1, that's false or true for a c code anyway
+		if ProcessCheck(BROWSEexe,BROWSE) == 1
+		{
+			if homepage != '' //homepage isn't blank
+			{
+				"\0\s[8]Oh, it looks like you already have %(appName) open, %(username)...  \n\nWould you like me to open your homepage in a new tab instead?"
+				--
+				"\n\n\![*]\q[Yes,OnLaunchBrowser]\n\![*]\q[No,CANCEL]\e"
+			}
+			else //homepage is blank
+			{
+				"\0\s[8]You already have %(appName) open, %(username)!\n\nShould I just open a new browser window?"
+				--
+				"\n\n\![*]\q[Yes,OnLaunchBrowser]\n\![*]\q[No,CANCEL]\e"
+			}
+		}
+		else
+		{
+			"\![raise,OnLaunchBrowser]\e"
+		}
+	}	
+}
+
+OnSetHomepage //set or change homepage
+{
+	_oldhomepage = homepage //mostly to decide if we're launchingthe browser for the first time. could also be used if homepage didn't actually change
+	homepage = CUTSPACE(reference0) //cuts out whitespace in case user tries to not input anything or input spaces
+	
+	if _oldhomepage == homepage //homepage unchanged
+	{
+		if firstbrowser != 1 //first time launch, would also mean both are blank
+		{
+			firstbrowser = 1
+			--
+			"\0\s[0]You'd like me to open a blank window then?  Of course.  One moment."
+			--
+			"\x\![raise,OnRequestBrowser]"
+		}
+		else //accessed from config
+		{
+			"\0\s[8]This... is the same address as before.  Did you change your mind?  \s[0]That's fine, too!"
+			--
+			"\x"
+			--
+			TalkConfig
+		}
+	} 
+	elseif homepage != "" //entered a nonblank url
+	{
+		if firstbrowser != 1 //first time launch
+		{
+			firstbrowser = 1
+				"\0\s[5]Excellent!  I'll open the browser with \f[color,#C94948]%(homepage)\f[color,default] from here on out.  You can always change it later in Config."
+				--
+				"\x\![raise,OnRequestBrowser]"
+		}
+		else //accessed from config
+		{
+			"\0\s[5]Excellent!  I'll open new browser sessions with \f[color,#C94948]%(homepage)\f[color,default] from here on out.\n[150]Do you want try it out now?"
+			--
+			"\n[150]\![*]\q[Yes,OnRequestBrowser]\n\![*]\q[No,functionmenu]"
+		}
+	}
+	else //homepage is a blank string
+	{
+		// if firstbrowser != 1 //first time browser launch.
+		// {
+		// 	firstbrowser = 1
+		// 	--
+		// 	case vegafront
+		// 	{
+		// 		when 0;"Oh, you just want me to open a blank window then? Okay! I can do that too!"
+		// 		others;"\0\s[25].\w8.\w8.\w8\n[150]\0\s[20]Okay.\w8\w8 No homepage."
+		// 	}
+		// 	--
+		// 	"\![raise,OnRequestBrowser]"
+		// }
+		// else //accessed from config menu
+		// {
+			"\0\s[0]Alright, I'll just open the browser with a new tab."
+			--
+			"\x"
+			--
+			TalkConfig
+		// }
+		
+	}
+}
+
+//actually launch the browser... but threre's a twist
+OnLaunchBrowser //also im an idiot lol i didn't remember you can open a browser through a sakurascript command... i legit was launching it with EXECUTE( explorer ) too that was nonsense. and also had a chance of... opening your file browser instead
+{
+		"\0\s[0]Done!"
+		"\0\s[0]Here you are."
+		"\0\s[0]As you requested."
+		--
+		if homepage == ""; "\![open,browser]"
+		else; "\![open,browser,%(homepage)]"
+	--
+	"\e"
+}
+
+//uses startpage as the search engine. im not sponsored i swear it's just what i personally use in place of google
+//maybe if people ask i can have them pick out a search engine, it's a fairly easy thing to do
+Select.lookup
+{
+	"\0\s[5]Oh, you'd like me to look something up for you?  Of course!  \s[0]What would you like me to search?"
+	//Ask for a search query
+	--
+	"\![open,inputbox,OnSearchOnline]"
+}
+
+//actually do the search query and search online
+OnSearchOnline
+{
+	_url = 'https://www.startpage.com/do/dsearch?query=' + TOLOWER(reference[0])
+	--
+	"\j[%(_url)]Searching for \&[quot]%(reference[0])\&[quot]...\n\n\w8\w8"
+	--
+	reference0 = TOLOWER(reference0) //changes it to lowercase
+
+		if "sunrise" _in_ reference0 || "sunset" _in_ reference0 || "dusk" _in_ reference0 || "dawn" _in_ reference0  || "twilight" _in_ reference0
+		{
+			"\0\s[6]Beautiful, aren't they?  \0\s[0]This is one of my favorite times of day!  It's nice and cool and perfect for training.  The view certainly doesn't hurt either."
+			"\0\s[0]Early to rise, early to sleep!  That's the way to get stronger."
+		}
+		elseif "art" _in_ reference0 || "painting" _in_ reference0 || "sculpture" _in_ reference0 || "needlefelting" _in_ reference0 || "needle felting" _in_ reference0 || "woodworking" _in_ reference0 || "sewing" _in_ reference0 
+		{
+			"\0\s[5]How talented!  I've never been one for the arts myself, but I can appreciate the discipline and determination that goes into honing those skills.  Not to mention the beautiful things those skills result in!"
+		}
+		elseif "cat" _in_ reference0 || "dog" _in_ reference0 || "kitten" _in_ reference0 || "puppy" _in_ reference0 || "rabbit" _in_ reference0 || "bunny" _in_ reference0 || "bunnies" _in_ reference0 || "puppies" _in_ reference0
+		{
+			"\0\s[0]Are these some of the Pokemon from your world, %(username)?  They're certainly cute!  I wonder what kind of powers they hold..."	
+		}
+		elseif "star" _in_ reference0 || "space" _in_ reference0 || "cosmos" _in_ reference0 || "universe" _in_ reference0  || "planet" _in_ reference0 || "comet" _in_ reference0 || "shooting star" _in_ reference0 || "meteor" _in_ reference0
+		{
+			"\0\s[0]Space is certainly beautiful.  There's so much out there that we still don't know about."
+			"\0\s[0]Are you interested in space, %(username)?  I can see why.  There's so much beauty in it all."
+			"\0\s[8]I wonder what kind of mysterious things we have yet to discover out there..."
+		}
+		elseif "kanto" _in_ reference0 || "johto" _in_ reference0
+		{
+			"\0\s[6]That's where I'm from!  It's a beautiful region.  I hope you're able to visit one day, %(username)!  I'd love to be able to show you around."
+			"\0\s[8]Hm...  This looks a bit different than where I'm from..."
+		}
+		elseif "blackthorn" _in_ reference0
+		{
+			"\0\s[6]That's my hometown!  \s[0]It's home to the Dragons Den, an ancient clan of dragon tamers stretching back generations.  It's very exclusive and elite: you either have to be born into it, or appeal to the elders and pass a series of trials.  Very few outsiders have ever been permitted to join."
+			"\0\s[5]That's my hometown!  \s[6]I would love to show you around one day!"
+		}
+		elseif "dragon" _in_ reference0 || "wyrm" _in_ reference0 || "wyvern" _in_ reference0 || "drake" _in_ reference0 || "coatl" _in_ reference0 || "hydra" _in_ reference0 || "amphithere" _in_ reference0 || "ampitere" _in_ reference0 || "amphitere" _in_ reference0
+		{
+			"\0\s[5]Ah, so your world does have dragons!  \s[0]Quite the fearsome and majestic beasts, yes?  Are you able to bond and train with your world's dragons as well?"
+			"\0\s[5]So this is your world's dragons?  Very impressive!  I wonder what kinds of moves and abilities they have..."
+		}
+		elseif "pokemon" _in_ reference0 || "dragonite" _in_ reference0 || "dragonair" _in_ reference0 || "dratini" _in_ reference0 || "axew" _in_ reference0 || "fraxure" _in_ reference0 || "haxorus" _in_ reference0 || "noibat" _in_ reference0 || "noivern" _in_ reference0 || "kingdra" _in_ reference0 || "vibrava" _in_ reference0 || "flygon" _in_ reference0 || "altaria" _in_ reference0 || "bagon" _in_ reference0 || "shelgon" _in_ reference0 || "salamence" _in_ reference0 || "latias" _in_ reference0 || "latios" _in_ reference0 || "rayquaza" _in_ reference0 || "gible" _in_ reference0 || "gabite" _in_ reference0 || "garchomp" _in_ reference0 || "druddigon" _in_ reference0 || "deino" _in_ reference0 || "zweilous" _in_ reference0 || "hydreigon" _in_ reference0 || "reshiram" _in_ reference0 || "zekrom" _in_ reference0 || "kyurem" _in_ reference0 || "dragalge" _in_ reference0 || "tyrunt" _in_ reference0 || "tyrantrum" _in_ reference0 || "goomy" _in_ reference0 || "sliggoo" _in_ reference0 || "goodra" _in_ reference0 || "zygarde" _in_ reference0 || "turtonator" _in_ reference0 || "drampa" _in_ reference0 || "jangmo-o" _in_ reference0 || "hakamo-o" _in_ reference0 || "kommo-o" _in_ reference0 || "applin" _in_ reference0 || "flapple" _in_ reference0 || "appletun" _in_ reference0 || "duraludon" _in_ reference0 || "dreepy" _in_ reference0 || "drakloak" _in_ reference0 || "dragapult" _in_ reference0 || "dracozolt" _in_ reference0 || "dracovish" _in_ reference0 || "eternatus" _in_ reference0 || "regidrago" _in_ reference0 || "cyclizar" _in_ reference0 || "tatsugiri" _in_ reference0 || "frigibax" _in_ reference0 || "arctibax" _in_ reference0 || "baxcalibur" _in_ reference0 || "archaludon" _in_ reference0 || "hydrapple" _in_ reference0 || "koraidon" _in_ reference0 || "miraidon" _in_ reference0 || "roaring moon" _in_ reference0 || "gouging fire" _in_ reference0 || "raging bolt" _in_ reference0
+		{
+			"\0\s[5]Ah, excellent choice in pokemon, %(username)!  I knew you were a dragon master at heart!  Dragon Pokemon truly are the best."
+			"\0\s[6]I recognize these pokemon!  They're one of the majestic Dragon types!  Strong, wild, and majestic.  Simply perfect."
+			"\0\s[5]A dragon type pokemon!  \s[0]It's my dream to be able to train one of every dragon type species in the world one day."
+			"\0\s[5]Ah, %(reference0)!  One of my favorite pokemon!"
+		}
+		elseif "aerodactl" _in_ reference0 || "gyarados" _in_ reference0 || "charizard" _in_ reference0
+		{
+			"\0\s[0]They may not be dragon in type, but it's the heart of a dragon that matters most!"
+			"\0\s[0]While not classified as true dragons, they'll always be dragons to me."
+		}
+}
+
+
+//When the user clicks Open Calendar. This will open the calender function of SSP, an in-built feature that you don't have to worry about in the least. You don't have to write dialogue here if you don't want to, the template's default dialogue will handle it, but it is an option.
+Select.CALENDAR
+{
+	"\0\s[0]Of course.  Opening the calendar.\w8\![open,calendar]\e"
+	"\0\s[0]Setting aside some dates for training?  Let me help!\w8\![open,calendar]\e"
+	"\0\s[0]Oh, you need the calendar?  Allow me!\w8\![open,calendar]\e"
+	
+	//You can replace the dialogue here up to the \!.
+	//Advanced users, can you break it down yet? It's basically just using \! to open calender.exe or dll or whatever SSP uses to make it happen.
+}
+
+Select.calc
+{	
+	"\0\s[0]Need to do some math, hm?  Let me open the calculator for you."
+	"\0\s[0]Calculating something?  Allow me to help!"
+	"\0\s[9]Ah, math... A truly difficult subject.  Perhaps this will help."
+	--
+	"\![raise,OnLaunchCalc]\e"
+}
+
+//going to invoke this with raise for the timing to make sense.
+OnLaunchCalc
+{
+	void EXECUTE( 'calc.exe' )
+}
+
+//notepad
+Select.notepad
+{
+	"\0\s[0]Need to write something?  Let me open a notepad for you.\e"
+	"\0\s[0]Oh, taking notes?  Here, let me help!\e"
+	--
+	void EXECUTE( 'notepad.exe' )
+}
+
+//This is when the user chooses to check their email. The rest of this function plays out in etc.dic. You can leave this alone.
+Select.MailCheck
+	{
+		"\![biff]\e"
+	}
+
+//If the user chooses to empty the recycle bin. Make sure to uncomment the "Empty Recycle Bin" option above in the Select.dosomething menu if you want to include this feature.
+
+Select.ChoiceGarbagecan
+{
+	_gomicheck = FUNCTIONEX("gomi.dll", "-n")	//Don't touch this line. for those curious, it's referencing a SAORI, which are optional user-made plug-in dlls you can download to enable different functions on your ghost. gomi.dll is one included with this template. All SAORI are in Japanese (maybe Korean or Chinese as well idk) and many have disappeared by now, so don't concern yourself very much with SAORI. They're for skilled developers, mostly.
+	
+	if _gomicheck == 0 //If the recycle bin is empty.
+	{
+		"\0\s[0]Oh, you want me to check the Recycle Bin?  Very well.\w8\w8\s[-1]\w8\w8\w8\w8\w8\0\s[0]\cIt looks like it's already empty.\e"
+		
+		//This isn't the usual flat template dialogue, mostly because I wanted to show that this is a good place to use s[-1], which I covered in the walkthrough file. You can have your ghost disappear momentarily like they're going to check your recycle bin, then come back. \c clears the ghost's balloon of text. Replace dialogue as you desire.
+	}
+	elseif _gomicheck >= 1 //If the recycle bin is full.
+	{
+		"\0\s[0]Of course!  Emptying the Recycle Bin.\w8\w8\w8\s[-1]\w8\w8\w8\w8\w8\![raise,OnGarbagecanEmpty]\w9\w9\w9\0\s[0]\cDone.\e"
+		
+		"\0\s[0]I'll go empty the Recycle Bin right now.  I'll be right back.\w8\w8\w8\s[-1]\w8\w8\w8\w8\w8\![raise,OnGarbagecanEmpty]\w9\w9\w9\0\s[0]\cComplete!\e"
+		
+		//Somewhat similar to the above, but notice the \![raise],OnGarbagecanEmpty] tag in there. That's what actually empties the recycle bin, so make sure you don't delete that tag. Otherwise, replace the dialogue as you want.
+		//As you can see, you can have multiple pieces of dialogue in here, just like you can for many other functions scattered through the .dic files. If you only want the one, just delete the others, or if you want to add more, just copy and paste and write new dialogue as it comes to you. This applies to when the recycle bin is empty as well.
+	}
+}
+
+
+//This is for the SAORI, don't touch it.
+OnGarbagecanEmpty
+{
+	_gomi = FUNCTIONEX("gomi.dll", "-f")
+}
+
+Select.starttaskman
+{
+	void EXECUTE( 'taskmgr.exe' )
+	"\0\s[0]Programs not behaving as they should?  Or maybe you just want to check your performance.\e"
+}
+
+//This is when the user chooses System Information. Don't touch any of this either. For those curious though, note that this is done using another SAORI, this time saori_cpuid.dll.
+Select.ChoiceSystemInformation
+{
+	"\b[2]\0\s[0]Of course!  Here's what I know about your computer:\n\n"
+	--	
+	os_name = FUNCTIONEX("saori_cpuid.dll","os.name")
+	os_version = FUNCTIONEX("saori_cpuid.dll","os.version")
+	cpu_name = FUNCTIONEX("saori_cpuid.dll","cpu.name")
+	cpu_clockex = FUNCTIONEX("saori_cpuid.dll","cpu.clockex")
+	"/
+	\0\s[0]\b[2]/
+	\_q\f[bold,1]OS:\f[bold,0] %(os_name) %(os_version)\n/
+	\f[bold,1]Memory Load:\f[bold,0] %(memoryload)%\n/
+	\f[bold,1]Physical Memory:\f[bold,0] %(memoryavailphys) KB\n/
+	\f[bold,1]CPU:\f[bold,0] %(cpu_name) %(cpu_clockex)MHz\n/
+	\f[bold,1]Ukagaka:\f[bold,0] %property[baseware.version]/
+	\e"
+}
+
+//This is when they select bug report. This is mostly meant to briefly give the user information about you, the creator, and how to report a problem to you. This can be handy if the person forgot where they got their ghost or how to contact you. Add whatever info you like here.
+Select.bugreport
+{
+"\0\s[2]Oh no, a bug??  How dishonorable!  \s[0]  You can report any bugs you find to siyuki1234@gmail.com. \w5You downloaded me from \_a[https://nerdybirdycreations.neocities.org/ukagaka/lance]here\_a.\e"
+}
+
+
+//--Test Variable --------------------------------------------------------
+//I briefly mentioned the test variable in bootend.dic and possibly in etc.dic as well, I'm not sure. What exactly is the test variable? Basically, it's a place you can plug in anything you want to test out. While you can use Script Input to test most of your ghost's dialogue, there are some lines it just can't do, and it can't help you test choices. But the test variable can!
+//You can also use this to test functions as I mentioned above by adding \![raise,function] at the end of it, although you can do this with Script Input as well. Advanced Users, the test variable is also great for testing out any new stuff you may add to your ghost, like mode settings, item values, functions, raising or lowering numbers, what have you, particularly if you have a bunch you want to change all at once.
+
+//It is ALWAYS A GOOD IDEA to test your dialogue! If you won't check it with the test variable, at least test it with Script Input! It'll save you so much trouble!
+
+Select.testvariable
+{
+	"\0\s[0]Testing!\e"
+}
+
+//------------------------------------- Reminders (Code borrowed from ToxArts' YesMan) -----------------------------------------------------------------------
+//----------------------Reminders--------------------------
+//reminder mini array
+//[0] note
+//[1] hour
+//[2] min
+//[3] am/pm
+//[4] day
+//[5] month
+//[6] year
+//[7] sec -> compared against GETSECCOUNT
+//[8] repeat "daily" "weekly" "every 30 days" "none"
+//[9] hour 24 for use in GETSECCOUNT
+OnGenReminders : all {
+
+	"\0\s[0]\b2Need me to remind you of something?  I'd be happy to help!  I can remind you of just about anything.\n\n"
+	"\_qOh! If my menu is open, reminders won't show up, so be aware of that!\n\n"
+	"\![*]\q[Set new reminder,OnSetNewReminder]\n"
+	"\![*]\q[View/Edit/Delete reminders,OnDisplayReminders]\n\n"
+
+	"\0\s[0]Back to...\n\n[half]"
+	--
+
+	"\![*]\q[Functions,functionmenu]\n/
+	\![*]\q[Main menu,BackToMainMenu]\e"
+
+}
+
+OnSetNewReminder : all {
+
+	if reference2 == "note_entered" {
+
+		singleReminderArray = ""
+		singleReminderArray[0] = SHIORI3FW.EscapeAllTags(reference0)
+
+		"\0\s[0]What time did you want to be reminded, then? Make sure to format it as Hours:Minutes:AM/PM\![open,inputbox,OnSetNewReminder,-1,XX:XX:AM,--reference=time_entered]\e"
+
+	} elseif reference2 == "time_entered" {
+		_timearray = SPLIT(reference0, ':')
+
+		if (ARRAYSIZE(_timearray) != 3) || !(ISINTSTR(_timearray[0]+'')) || !(ISINTSTR(_timearray[1]+'')) || TOINT(_timearray[0]) < 0 || TOINT(_timearray[0]) > 12 || TOINT(_timearray[1]) < 0 || TOINT(_timearray[1]) > 59 || !(TOLOWER(_timearray[2]) == "am" || TOLOWER(_timearray[2]) == "pm"){
+
+			"\0\s[4]That doesn't seem to be a valid time... Please try again.\![open,inputbox,OnSetNewReminder,-1,XX:XX:AM,--reference=time_entered]\e"
+
+		}
+
+		singleReminderArray[1] = TOSTR(TOINT(_timearray[0])) //get rid of any leading 0's
+		singleReminderArray[2] = _timearray[1]
+		singleReminderArray[3] = TOUPPER(_timearray[2])
+
+		if singleReminderArray[3] == "AM" && singleReminderArray[1] == "12" {
+			singleReminderArray[9] = "0"
+		} elseif singleReminderArray[3] == "PM" && TOINT(singleReminderArray[1]) < 12 {
+			singleReminderArray[9] = TOSTR(TOINT(singleReminderArray[1])  + 12)
+		} else {
+			singleReminderArray[9] = singleReminderArray[1]
+		}
+
+
+		if TOINT(_timearray[1]) < 10 {
+			singleReminderArray[2] = "0" + TOSTR(TOINT(singleReminderArray[2]))
+		}
+
+		"\0\s[0]What date did you want to be reminded?\![open,dateinput,OnSetNewReminder,-1,%(year),%(month),%(day),--reference=date_entered]\e"
+
+	} elseif reference2 == "date_entered" {
+
+		singleReminderArray[4] = TOSTR(reference0[2])
+		singleReminderArray[5] = TOSTR(reference0[1])
+		singleReminderArray[6] = TOSTR(reference0[0])
+
+		singleReminderArray[7] = TOSTR(GETSECCOUNT(singleReminderArray[6],singleReminderArray[5],singleReminderArray[4],0,singleReminderArray[9],singleReminderArray[2],0))
+
+		_cur = GETSECCOUNT
+		_rem = TOINT(singleReminderArray[7])
+
+		if _cur > _rem {
+			"\0\s[4]Apologies, but I can't set a reminder for the past!  Try again.\![open,inputbox,OnSetNewReminder,-1,XX:XX:AM,--reference=time_entered]\e"
+		}
+
+		"\0\s[0]Did you want me to repeat this reminder?\n\n"
+
+		"\![*]\q[Yes\, Daily,OnSetReminderFinish,daily]\n"
+		"\![*]\q[Yes\, Weekly,OnSetReminderFinish,weekly]\n"
+		"\![*]\q[Yes\, Every 30 Days,OnSetReminderFinish,every 30 days]\n"
+		"\![*]\q[No,OnSetReminderFinish,none]\n\e"
+
+	}
+	"\0\s[0]What did you want me to remind you to do? \![open,inputbox,OnSetNewReminder,-1,--reference=note_entered]\e"
+
+
+}
+
+OnSetReminderFinish : all{
+
+	singleReminderArray[8] = TOSTR(reference0)
+
+	"Of course. I'll remind you at: \n%(singleReminderArray[1]):%(singleReminderArray[2]) %(singleReminderArray[3]) on %(singleReminderArray[5])/%(singleReminderArray[4])/%(singleReminderArray[6]) \nto: %(singleReminderArray[0])\w8\n"
+
+	if singleReminderArray[8] == "none" {
+
+		"And I'll just remind you this once! \n\n"
+
+	} else {
+		"And after that I'll remind you %(singleReminderArray[8])!\w8 \n\n"
+	}
+
+	allRemindersArray[ARRAYSIZE(allRemindersArray)] = singleReminderArray
+
+	"\_q\0\s[0]Back to...\n\n[half]"
+
+	"\![*]\q[Reminder menu,OnGenReminders]\n"
+	"\![*]\q[Functions,functionmenu]\n"
+	"\![*]\q[Main menu,BackToMainMenu]\e"
+
+
+
+}
+
+//function to clean up/delete reminders that already passed
+OnUpdateReminders {
+
+	all:{
+		_arrLen = ARRAYSIZE(allRemindersArray);
+		_sec = GETSECCOUNT
+		for _i = ARRAYSIZE(allRemindersArray)-1; _i >= 0; _i-- {
+
+			_item = allRemindersArray[_i]
+
+				case _item[8] {
+
+					when "daily" {
+
+						if _sec >= _item[7] {
+
+							while _sec >= _item[7] {
+								_item[7] = TOSTR(TOINT(_item[7]) + 86400)
+							}
+
+
+							_temp = GETTIME(TOINT(_item[7]))
+
+							_item[9] = _temp[4]
+
+							if (_temp[4]) > 11 {
+								_item[3] = "PM"
+							} else {
+								_item[3] = "AM"
+							}
+							if _temp[4] == 0 {
+								_temp[4] = 12
+							}
+							if _temp[4] > 12 {
+								_temp[4] -= 12
+							}
+
+							_item[1] = TOSTR(_temp[4]) //hour, to account for DST? i dont think i need it but w/e
+							_item[4] = TOSTR(_temp[2])//day
+							_item[5] = TOSTR(_temp[1])//month
+							_item[6] = TOSTR(_temp[0])//year
+
+							allRemindersArray[_i] = _item
+						}
+
+					}
+					when "weekly"{
+
+						if _sec >= _item[7] {
+
+							while _sec >= _item[7] {
+								_item[7] = TOSTR(TOINT(_item[7]) + 604800)
+							}
+							_temp = GETTIME(TOINT(_item[7]))
+
+
+							_item[9] = _temp[4]
+
+							if (_temp[4]) > 11 {
+								_item[3] = "PM"
+							} else {
+								_item[3] = "AM"
+							}
+							if _temp[4] == 0 {
+								_temp[4] = 12
+							}
+							if _temp[4] > 12 {
+								_temp[4] -= 12
+							}
+
+
+							_item[1] = TOSTR(_temp[4]) //hour, to account for DST? i dont think i need it but w/e
+							_item[4] = TOSTR(_temp[2])//day
+							_item[5] = TOSTR(_temp[1])//month
+							_item[6] = TOSTR(_temp[0])//year
+
+							allRemindersArray[_i] = _item
+						}
+
+					}
+					when "every 30 days" {
+
+						if _sec >= _item[7] {
+
+							while _sec >= _item[7] {
+								_item[7] = TOSTR(TOINT(_item[7]) + 2592000)
+							}
+
+							_temp = GETTIME(TOINT(_item[7]))
+
+
+							_item[9] = _temp[4]
+
+							if (_temp[4]) > 11 {
+								_item[3] = "PM"
+							} else {
+								_item[3] = "AM"
+							}
+							if _temp[4] == 0 {
+								_temp[4] = 12
+							}
+							if _temp[4] > 12 {
+								_temp[4] -= 12
+							}
+
+							_item[1] = TOSTR(_temp[4]) //hour, to account for DST? i dont think i need it but w/e
+							_item[4] = TOSTR(_temp[2])//day
+							_item[5] = TOSTR(_temp[1])//month
+							_item[6] = TOSTR(_temp[0])//year
+
+							allRemindersArray[_i] = _item
+						}
+					}
+					others { //none
+
+						if _sec >= _item[7] {
+
+							allRemindersArray[_i] = IARRAY
+						}
+					}
+
+
+
+				}
+
+
+
+
+
+		}
+	}
+
+
+}
+
+OnDelayReminders : all {
+
+	if reference2 == "slided" {
+
+		if (reference0 == 0) {
+
+			"\0\s[0]I won't delay it then.\n\n"
+			delayedRemindersArray[delayedRemindersArraySize] = IARRAY
+			delayedRemindersArraySize--
+
+		} else {
+			_item = delayedRemindersArray[delayedRemindersArraySize]
+			_item[7] = TOSTR(TOINT(_item[7]) + reference0*60)
+			_temp = GETTIME(TOINT(_item[7]))
+
+			_item[9] = _temp[4]
+
+			if (_temp[4]) > 11 {
+				_item[3] = "PM"
+			} else {
+				_item[3] = "AM"
+			}
+			if _temp[4] == 0 {
+				_temp[4] = 12
+			}
+			if _temp[4] > 12 {
+				_temp[4] -= 12
+			}
+			if TOINT(_temp[5]) < 10 {
+				_temp[5] = "0" + _temp[5]
+			}
+
+			_item[1] = TOSTR(_temp[4]) //hour, to account for DST? i dont think i need it but w/e
+			_item[2] = TOSTR(_temp[5])//min
+			_item[4] = TOSTR(_temp[2])//day
+			_item[5] = TOSTR(_temp[1])//month
+			_item[6] = TOSTR(_temp[0])//year
+
+			delayedRemindersArray[delayedRemindersArraySize] = _item
+			delayedRemindersArraySize--
+
+			"The reminder has been delayed to %(_item[1]):%(_item[2]) %(_item[3])!\n\n"
+		}
+		if delayedRemindersArraySize - originalSize < 0 {
+
+			"It doesn't look like I have any more reminders to delay."
+
+		} else {
+
+			_text = delayedRemindersArray[delayedRemindersArraySize][0]
+			"Sure! How long do you want me to wait to remind you to %(_text)? Please put it in as minutes, or you can put it at 0 for no delay! \![open,sliderinput,OnDelayReminders,-1,30,0,60,--reference=slided]\e"
+
+		}
+
+
+	} elseif reference0 =="nodelay"{
+
+		for _i = delayedRemindersArraySize; _i >= 0; _i-- {
+			delayedRemindersArray[_i] = IARRAY //this should only delete reminders that were going to be delayed this round
+			LOGGING("%(delayedRemindersArray)\n")
+		}
+
+	}
+	else {
+
+		_text = delayedRemindersArray[delayedRemindersArraySize][0]
+			"Of course! How long do you want me to wait to remind you to %(_text)? Please put it in as minutes, or you can put it at 0 for no delay! \![open,sliderinput,OnDelayReminders,-1,30,0,60,--reference=slided]\e"
+
+	}
+
+
+}
+
+OnDisplayReminders : all {
+
+	"\0\s[0]\b2\_q%(tmo)%(noscroll)Click on a reminder to edit or delete it.\n\n[half]\f[bold,1]\f[align,center]Reminders\f[bold,0]\n\f[align,left]"
+
+
+	if ARRAYSIZE(allRemindersArray) == 0 {
+
+			"Doesn't look like you have any yet!\n\n[half]"
+
+	} else {
+		for _i=0; _i < ARRAYSIZE(allRemindersArray); _i++ {
+
+			_item = allRemindersArray[_i]
+
+		"\f[color,default.anchor]\![*]\q [%(_item[0]),OnEditReminder,%(_i),allRemindersArray]\f[color,default]\n%(_item[1]):%(_item[2]) %(_item[3]), %(_item[5])/%(_item[4])/%(_item[6])\n"
+
+			if _item[8] == "none" {
+				"Not repeated.\n\n[half]"
+			} else {
+				"Repeated %(_item[8]).\n\n[half]"
+			}
+
+		}
+	}
+
+
+	"\n[half]\f[bold,1]\f[align,center]Delayed Reminders\f[bold,0]\n\f[align,left]"
+
+	if ARRAYSIZE(delayedRemindersArray) == 0 {
+
+	"None yet.\n\n[half]"
+
+	} else {
+		for _i=0; _i < ARRAYSIZE(delayedRemindersArray); _i++ {
+
+			_item = delayedRemindersArray[_i]
+
+			"\f[color,default.anchor]\![*]\q [%(_item[0]),OnEditReminder,%(_i),delayedRemindersArray]\f[color,default]\n%(_item[1]):%(_item[2]) %(_item[3]), %(_item[5])/%(_item[4])/%(_item[6])\n\n[half]"
+
+		}
+	}
+
+
+	"\n\0\s[0]Back to...\n\n[half]"
+
+
+	"\![*]\q[Reminder menu,OnGenReminders]\n"
+	"\![*]\q[Functions,functionmenu]\n"
+	"\![*]\q[Main menu,BackToMainMenu]\e"
+
+
+}
+
+OnEditReminder : all{
+
+	_i = reference0
+	"\0\s[0]\b2\_q%(tmo)"
+	"\f[bold,1]\f[align,center]Edit/Delete Reminder\f[bold,0]\n\n[half]\f[align,left]"
+
+	EVAL("_item = %(reference1)[%(reference0)]")
+
+	curReminder = (reference0,reference1) //save index and array
+
+	"\f[bold,1]Reminder Note\f[bold,0]: \f[color,default.anchor]\q[%(_item[0]),OnEditComponent,note]\f[color,default]\n"
+
+	"\f[bold,1]Reminder Time\f[bold,0]: \f[color,default.anchor]\q[%(_item[1]):%(_item[2]) %(_item[3]),OnEditComponent,time]\f[color,default]\n"
+
+	"\f[bold,1]Reminder Date\f[bold,0]: \f[color,default.anchor]\q[%(_item[5])/%(_item[4])/%(_item[6]),OnEditComponent,date]\f[color,default]\n"
+	"\f[bold,1]Repeating?\f[bold,0]: \f[color,default.anchor]\q[%(_item[8]),OnEditComponent,repeat]\f[color,default]\n\n[half]"
+
+	"\f[color,default.anchor]\q[Delete Reminder,OnDelConfirm,%(_i),%(reference1)]\f[color,default]\n\n"
+
+	"\0\s[0]Back to...\n\n[half]"
+
+	"\![*]\q[View/Edit/Delete Reminders,OnDisplayReminders]\n"
+	"\![*]\q[Reminder menu,OnGenReminders]\n"
+	"\![*]\q[Functions,functionmenu]\n"
+	"\![*]\q[Main menu,BackToMainMenu]\e"
+
+}
+
+OnEditComponent: all {
+
+	if reference0 == "note" {
+		"\0\s[0]Sure! What should the new note be?\![open,inputbox,OnEditComponent,-1,--reference=note_entered]\e"
+	} elseif reference2 == "note_entered" {
+		_note = SHIORI3FW.EscapeAllTags(reference0)
+		EVAL("_item = %(curReminder[1])[%(curReminder[0])]")
+		_item[0] = _note
+		EVAL("%(curReminder[1])[%(curReminder[0])] = _item")
+		--
+		"\![raise,OnEditReminder,%(curReminder[0]),%(curReminder[1])]"
+	} elseif reference0 == "time" {
+
+			"\0\s[0]Okay! What time should I remind you then? Write it like this: Hours:Minutes:AM/PM\![open,inputbox,OnEditComponent,-1,XX:XX:AM,--reference=time_entered]\e"
+
+	} elseif reference2 == "time_entered" {
+
+		_timearray = SPLIT(reference0, ':')
+
+		if (ARRAYSIZE(_timearray) != 3) || !(ISINTSTR(_timearray[0]+'')) || !(ISINTSTR(_timearray[1]+'')) || TOINT(_timearray[0]) < 0 || TOINT(_timearray[0]) > 12 || TOINT(_timearray[1]) < 0 || TOINT(_timearray[1]) > 59 || !(TOLOWER(_timearray[2]) == "am" || TOLOWER(_timearray[2]) == "pm"){
+
+			"\0\s[4]That time doesn't look quite right... Try again!\![open,inputbox,OnEditComponent,-1,XX:XX:AM,--reference=time_entered]\e"
+
+		}
+		EVAL("_item = %(curReminder[1])[%(curReminder[0])]")
+		_item[1] = TOSTR(TOINT(_timearray[0])) //get rid of any leading 0's
+		_item[2] = _timearray[1]
+		_item[3] = TOUPPER(_timearray[2])
+
+		if _item[3] == "AM" && _item[1] == "12" {
+			_item[9] = "0"
+		} elseif _item[3] == "PM" && TOINT(_item[1]) < 12 {
+			_item[9] = TOSTR(TOINT(_item[1])  + 12)
+		} else {
+			_item[9] = _item[1]
+		}
+
+
+		if TOINT(_timearray[1]) < 10 {
+			_item[2] = "0" + TOSTR(TOINT(_item[2]))
+		}
+
+		_item[7] = TOSTR(GETSECCOUNT(_item[6],_item[5],_item[4],0,_item[9],_item[2],0))
+		_cur = GETSECCOUNT
+		_rem = TOINT(_item[7])
+
+		if _cur > _rem {
+
+			"\s\[4]I can't set a reminder for the past...  Try putting in a future time!\![open,inputbox,OnEditComponent,-1,XX:XX:AM,--reference=time_entered]\e"
+
+		} else {
+
+			EVAL("%(curReminder[1])[%(curReminder[0])] = _item")
+			"\![raise,OnEditReminder,%(curReminder[0]),%(curReminder[1])]"
+
+		}
+
+	} elseif reference0 == "date" {
+
+			"\0\s[0]Okay, and what date did you need me to remind you?\![open,dateinput,OnEditComponent,-1,%(year),%(month),%(day),--reference=date_entered]\e"
+
+	} elseif reference2 == "date_entered" {
+		EVAL("_item = %(curReminder[1])[%(curReminder[0])]")
+		_item[4] = TOSTR(reference0[2])
+		_item[5] = TOSTR(reference0[1])
+		_item[6] = TOSTR(reference0[0])
+		_item[7] = TOSTR(GETSECCOUNT(_item[6],_item[5],_item[4],0,_item[9],_item[2],0))
+		_cur = GETSECCOUNT
+		_rem = TOINT(_item[7])
+
+		if _cur > _rem {
+
+			"\0\s[9]The past is in the past!  I can't set a reminder for that. Try putting in a future date!\![open,dateinput,OnEditComponent,-1,%(year),%(month),%(day),--reference=date_entered]\\e"
+
+		} else {
+
+			EVAL("%(curReminder[1])[%(curReminder[0])] = _item")
+			"\![raise,OnEditReminder,%(curReminder[0]),%(curReminder[1])]"
+
+		}
+
+	} elseif reference0 == "repeat" {
+
+		"\0\s[0]Got it! And did you need this to be repeated?\n\n"
+
+		"\![*]\q[Yes\, Daily,OnEditComponent,daily]\n"
+		"\![*]\q[Yes\, Weekly,OnEditComponent,weekly]\n"
+		"\![*]\q[Yes\, Every 30 Days,OnEditComponent,every 30 days]\n"
+		"\![*]\q[No,OnEditComponent,none]\n\e"
+
+	} else {
+		EVAL("_item = %(curReminder[1])[%(curReminder[0])]")
+		_item[8] = TOSTR(reference0)
+		EVAL("%(curReminder[1])[%(curReminder[0])] = _item")
+		"\![raise,OnEditReminder,%(curReminder[0]),%(curReminder[1])]"
+
+	}
+
+}
+
+OnDelConfirm : all{
+
+	_i = reference0
+	_ar = reference1
+	EVAL("_item = %(reference1)[%(reference0)]")
+
+	"\0\s[0]Are you sure you want to delete the reminder to %(_item[0])?\n\n"
+
+	"\![*]\q[Yes,OnDelReminder,%(_i),%(_ar)]\n"
+	"\![*]\q[No,OnDisplayReminders]\n"
+
+}
+
+
+OnDelReminder
+{
+	EVAL("%(reference1)[%(reference0)] = IARRAY")
+	--
+	OnDisplayReminders
+}
+
+Onremindersallcheck
+{
+		_tempSize = -1
+	_tempArray = IARRAY
+	_sec = GETSECCOUNT
+	all:{
+		for _i = ARRAYSIZE(delayedRemindersArray)-1; _i >= 0; _i-- 
+		{
+			_item = delayedRemindersArray[_i]
+			if _sec == TOINT(_item[7]) 
+			{
+				"\0\s[0]Hey %(username)! You asked me to remind you to %(_item[0])\n\n"
+				delayedRemindersArray[_i] = IARRAY
+			}
+		}
+		_tempArray = IARRAY
+		for _i = ARRAYSIZE(allRemindersArray)-1; _i >= 0; _i-- 
+		{
+			_item = allRemindersArray[_i]
+			if _sec == TOINT(_item[7]) 
+			{
+				_tempArray[ARRAYSIZE(_tempArray)] = _item
+				"\0\s[0]Hey %(username)! You asked me to remind you to %(_item[0])\n\n"
+				case _item[8] 
+				{
+					when "daily" 
+					{
+						_item[7] = TOSTR(TOINT(_item[7]) + 86400)
+						_temp = GETTIME(TOINT(_item[7]))
+						_item[9] = _temp[4]
+
+						if (_temp[4]) > 11 
+						{
+							_item[3] = "PM"
+						} 
+						else 
+						{
+							_item[3] = "AM"
+						}
+						if _temp[4] == 0 
+						{
+							_temp[4] = 12
+						}
+						if _temp[4] > 12 
+						{
+							_temp[4] -= 12
+						}
+						_item[1] = TOSTR(_temp[4]) //hour, to account for DST? i dont think i need it but w/e
+						_item[4] = TOSTR(_temp[2])//day
+						_item[5] = TOSTR(_temp[1])//month
+						_item[6] = TOSTR(_temp[0])//year
+						allRemindersArray[_i] = _item
+					}
+					when "weekly"
+					{
+						_item[7] = TOSTR(TOINT(_item[7]) + 604800)
+						_temp = GETTIME(TOINT(_item[7]))
+						_item[9] = _temp[4]
+
+						if (_temp[4]) > 11 
+						{
+							_item[3] = "PM"
+						} 
+						else 
+						{
+							_item[3] = "AM"
+						}
+						if _temp[4] == 0 
+						{
+							_temp[4] = 12
+						}
+						if _temp[4] > 12 
+						{
+							_temp[4] -= 12
+						}
+
+						_item[1] = TOSTR(_temp[4]) //hour, to account for DST? i dont think i need it but w/e
+						_item[4] = TOSTR(_temp[2])//day
+						_item[5] = TOSTR(_temp[1])//month
+						_item[6] = TOSTR(_temp[0])//year
+						allRemindersArray[_i] = _item
+					}
+					when "every 30 days" {
+						_item[7] = TOSTR(TOINT(_item[7]) + 2592000)
+						_temp = GETTIME(TOINT(_item[7]))
+						_item[9] = _temp[4]
+						if (_temp[4]) > 11 
+						{
+							_item[3] = "PM"
+						} 
+						else 
+						{
+							_item[3] = "AM"
+						}
+						if _temp[4] == 0 
+						{
+							_temp[4] = 12
+						}
+						if _temp[4] > 12 
+						{
+							_temp[4] -= 12
+						}
+						_item[1] = TOSTR(_temp[4]) //hour, to account for DST? i dont think i need it but w/e
+						_item[4] = TOSTR(_temp[2])//day
+						_item[5] = TOSTR(_temp[1])//month
+						_item[6] = TOSTR(_temp[0])//year
+						allRemindersArray[_i] = _item
+					}
+					others 
+					{ //none
+						allRemindersArray[_i] = IARRAY
+					}
+				}
+			}
+		}
+		if ARRAYSIZE(_tempArray) > 0
+		{
+			if ARRAYSIZE(delayedRemindersArray) == 0 
+			{ //no delayed reminders currently
+				originalSize = 0
+				delayedRemindersArraySize = ARRAYSIZE(_tempArray) - 1
+				_tempSize = delayedRemindersArraySize
+				delayedRemindersArray = _tempArray
+			} 
+			else 
+			{ //delayedRemindersArray already has stuff in it
+				originalSize = ARRAYSIZE(delayedRemindersArray)
+				_tempSize = ARRAYSIZE(_tempArray) - 1
+				delayedRemindersArray = (delayedRemindersArray,_tempArray) //will this work??
+				delayedRemindersArraySize = ARRAYSIZE(delayedRemindersArray) - 1
+			}
+		}
+	}
+	--
+	if hour == 0 && minute == 0; AutoUpdates[1] = 0 //Resetting auto updates
+	--
+    all:{
+		if _tempSize > -1 { //if we have reminders to check
+			LOGGING("tempsize is %(_tempSize), in if statement")
+			if _tempSize == 0 
+			{
+				"Need me to delay your reminder?\n\n"
+			} 
+			else 
+			{
+				"Are there any of your reminders you'd like me to delay?\n\n"
+			}
+
+			_tempSize = -1
+			_tempArray = IARRAY
+		--
+			"\![*]\q[Yes,OnDelayReminders]\n/
+			\![*]\q[No,OnDelayReminders,nodelay]\n\n"
+		}
+	}
+}
+
+
+
+//---- OnChoiceTimeout ---------------------------------------------------------
+//If the user is given a menu with choices, but doesn't pick one of the choices, it will eventually time out. At that point, they will say this dialogue. Replace with whatever you like, or leave it blank.
+
+OnChoiceTimeout
+ {
+	"\0\s[2]Oh, it looks like the menu has timed out.  My apologies!\e"
+	"\0\s[3]You'll have to be quicker than that!\e"
+	"\0\s[8]Oh?  Couldn't make up your mind?\e"
+ }

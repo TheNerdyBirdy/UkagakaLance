@@ -1,0 +1,803 @@
+﻿//---------------------------AI Talk--------------------------
+//Alright, this is it! The bread and butter of your ghost. This is where all their random conversations are stored. Of all the .dic files, this is the one you will probably be adding stuff to and updating the most as new dialogue comes to your mind. It is relatively simple in that there aren't many functions or real coding involved with this file, but there are a few cool tricks you can do within randomtalk that can make dialogue with interesting effects, so I'll point them out as we go along.
+
+//I'm going to leave a lot of examples of different types of dialogue in here that you can study if the possibilities they present intrigue you. Study them carefully!
+
+
+//Make sure to read the walkthrough (http://www.ashido.com/ukagaka/) for more details about how to properly format ghost dialogue!
+//I will reiterate that you should be editing these in Notepad++, and in particular, you should set the Language to C (or Java I guess) to properly highlight all the text. It will make things A LOT EASIER for you, trust me! It will also help you keep track of your brackets in case you forget some. If you click on a line with a bracket in Notepad++, it should highlight where the other bracket ends, or turn purple if there's no finishing bracket (which you should definitely fix!)
+//It will also highlight my commented lines in green, so you'll know where they are. Any line beginning with // is a commented line that the code will not read. It's just for your reference!
+
+
+//If you see a big block of commented text you want to uncomment, highlight the text and then hit ctrl-shift-k in Notepad++ and that should uncomment it. Mostly this is intended for advanced users.
+
+/*
+This file has...
+
+AiTalk
+RandomTalk
+any chains you set up
+HourCheck
+OnMinuteChange
+OnSecondChange
+OffscreenTalk
+EndOffscreenTalk
+OnSurfaceRestore
+OnKeyPress
+*/
+
+
+//--OnAiTalk
+//Leave this alone. This is mostly setting up whether or not dialogue is in a chain before it displays.
+
+// OnAiTalk
+ // {
+	// if RAND(100) < communicateratio
+ 	// {
+ 		// StartCommunicate
+	// }
+ 	// else
+	// {
+			// if CHAIN.IDName == "" {
+ 				// lastTalk = RandomTalk
+			// }
+			// else {
+				// lastTalk = ChainTalk
+			// }
+			// lastTalk
+	// }
+ // }
+ 
+ 
+ //*********************Advanced User Info*******************************
+//These text boxes are meant for those who have an interest in expanding or using more complicated functions in their ghost. Also for my own reference in the future since I plan on using this template too, haha. If you have no interest in any of this and just want to keep things as simple as possible, feel free to skip these boxes.
+
+//--Mikiretalk, or the Off-Screen Boundary Check--
+
+//This has been a feature in the template for a very long time, and while it's enjoyable enough for some, for others it can be rather irritating or goes against what their ghost is. So to that end, I'm making this an opt-in feature. Basically, this flag checks to see if the ghost is off the screen and haves them say something to the user to get them to move them back on screen. If you want to enable this, it'll take a bit of fussing around. You're going to want to add the mikireflag check into OnAiTalk above. You can see how so below. Then you'll have to follow up on the flag check later down at OnSecondChange. Keep an eye out.
+
+ 
+
+OnAiTalk
+ {
+	if talkraterand == 1
+		{
+			case RAND(6)
+			{
+				when 0; aitalkinterval = 30 //30 seconds
+				when 1; aitalkinterval = 60 //one minute
+				when 2; aitalkinterval = 120 //two minutes
+				when 3; aitalkinterval = 180 //three minutes
+				when 4; aitalkinterval = 240 //four minutes
+				when 5; aitalkinterval = 300 //five minutes
+			}
+		}
+	--
+	if mikireflag == 0
+	{
+		if CHAIN.IDName != ""
+		{
+			LastTalk = ChainTalk
+		}
+		elseif RAND(100) >= 90 && careCheck == "ON"
+		{
+			LastTalk = SelfCare
+		}
+		elseif RAND(100) >= 60 && windowCheck == "ON"
+		{
+			LastTalk = WindowWatch
+		}
+		else
+		{
+			LastTalk = RandomTalk
+		}
+		LastTalk
+	}
+	else
+	{ 
+		MikireTalk
+	}
+ }
+//***********************************************************************
+
+
+//--RandomTalk 
+ //Alright, here we go! This is where ALL your ghost's random dialogue will go! These are the conversations that they'll have with you or each other that pop up depending on the talk rate defined in menu.dic (or if you ignored that, set in bootend.dic in the first boot, which would be every five minutes).
+ 
+ 
+//*********************Advanced User Info*******************************
+//These text boxes are meant for those who have an interest in expanding or using more complicated functions in their ghost. Also for my own reference in the future since I plan on using this template too, haha. If you have no interest in any of this and just want to keep things as simple as possible, feel free to skip these boxes.
+
+//You CAN link to other pools of dialogue in RandomTalk using envelopes/functions, such as %(teatalk) to pull from a pool of dialogue about tea. Then you'd just add that line in among the other dialogue in here with %(teatalk).
+
+//You can't do things like put OnSystemBoot or something in RandomTalk. You could use \![raise] to pull something though, although I'd be careful about it. More on these kind of things and conditionals in general in the coding page on the walkthrough.
+
+//If you split up RandomTalk with if/else checks, then you can redirect in an If to another function, like... if chargermode == "on" { ChargerChatting } else {normal random talk dialogue}. This would redirect the random dialogue to ChargerChatting instead. You can't just throw a function into RandomTalk directly though, like "dialogue 1" "dialogue 2" OnFunctionname "dialogue 3", that kind of thing. You'll have to split it off into its own if or point to it with an envelope.
+
+//You can do multiple ifs in RandomTalk if required... like an if for if a character is asleep, or if a third character is present, or if they're having a nervous breakdown, or if they're sulking. It depends! You can add a bunch of checks leading to specialized pools if you want. Just make sure you leave some normal dialogue in the last else for RandomTalk (unless you want to redirect that somewhere else with an envelope too... although that seems a bit redundant, honestly.)
+//***********************************************************************
+
+
+//nonoverlap_pool should make it so all your dialogue has an equal probability of being called, and it will do each line of dialogue before repeating them. "Why" is kind of technical and a bit outside the scope of this template, you can look into why elsewhere if you want.
+
+RandomTalk : nonoverlap_pool
+{
+	//Alright, here is where all your dialogue will go. I hope you studied how to format dialogue carefully in the walkthrough, as there is little here I can help you with. You're going to have to write most of it yourself. So instead, I'll give you a set of examples to look at and perhaps draw inspiration from! You don't have to use any of these of course, you can just wipe everything in RandomTalk and just write your own dialogue by scratch. But if you're new, I'm hoping these will serve as some little stepping stools as you get more used to writing and coding dialogue.
+	
+	//----------------------------- Generic Random Talk --------------------------------------------------------------------------------------------
+	
+	"\0\s[5]Allow me to lend you my strength, whenever you should need it.  It's time to move!\e"
+	
+	"\0\s[0]I never give up, no matter what.  You must be the same, am I right?\e"
+	
+	"\0\s[5]Never give up!  No matter what comes your way, I know you can face it!\e"
+	
+	"\0\s[5]You can do it!  If you put your all into it, I know you can achieve whatever you set your mind to!\e"
+	
+	"\0\s[5]I believe in you!  You're so much more capable than you think!  You just have to try!\e"
+	
+	"\0\s[5]I'm so proud of you!  Look at how far you've come and how much you've done!\e"
+	
+	"\0\s[5]Whatever your dreams may be, I know you can achieve them!  You just have to try your best!\e"
+	
+	"\0\s[6]I hope to be the type of Champion who never forgets what it's like to be a challenger!\e"
+	
+	"\0\s[0]You likely know that dragons are Pokémon spoken of in legends!\e"
+	
+	"\0\s[5]I'm both a dragon master and a Champion. As a Trainer, I strive to stomp out evil and rise to even greater heights!\e"
+	
+	"\0\s[0]It's OK to believe in destiny...  But I think believing in yourself and working hard are just as important.\e"
+	
+	"\0\s[0]I know we aren’t able to do much together, but I enjoy what little we can do, whether that’s listening to music together or simply watching you work.\e"
+	
+	"\0\s[0]It's good to travel around to new places every so often.  It can be a nice change of pace.\e"
+	
+	"\0\s[6]Dragon Pokémon are very fascinating.  \s[0]It's hard to catch them, but it's so much fun training them.  \s[5]And their strength is out of this world! They make the best partners!  \s[4]However, Dragon-type Pokémon don't do well in the cold. \s[0]It's not uncommon for me to huddle with mine in the winter to keep them warm.\e"
+	
+	"\0\s[8]There are a lot of dragon masters in Blackthorn City, where I'm from.  \s[0]My grandfather is the elder of a famous clan of dragon masters.  He, his grandfather, and even his grandfather before him...  they all had a deep bond with dragon Pokémon.  Someday, stories about me will be passed down to future generations of our clan as well.  If I think about it that way, it reminds me that I have to be on my best behavior.  \s[6]I'd like to be a good role model for all future dragon masters.\e"
+	
+	"\0\s[7]I can't stand Trainers that cheat or use cowardly and underhanded tactics.  Battles should be fought fair and square.  Only cowards resort to sucker punches.  \s[0]Pokémon moves are a different story, though.\e"
+	
+	"\0\s[5]This cape is a defining part of my wardrobe.  I wear it rain or shine.  Back in my hometown of Blackthorn City, my cape is like a uniform.  \s[6]When people see it, they know I'm a dragon master.  \s[0]I happen to like it quite a bit.  It's a uniform that many aspiring dragon masters hope to wear one day.\e"
+	
+	"\0\s[4]Whenever I see people or Pokémon in need, I feel compelled to help them in any way I can.  One man's justice may be another man's injustice...  but I can only trust that what I believe is right and stay steadfast on my path.  \s[9]If you ever think what I'm doing is wrong or unjust, don't hesitate to stop me, %(username).  But I should warn you, I don't back down easily.\e"
+	
+	"\0\s[5]If I'm going to fight in a Pokémon battle, I want to win!\e"
+	
+	"\0\s[0]I'm sure you would become almost invincible if you mastered using dragon Pokémon.  Speaking of dragon Pokémon, that reminds me of my hometown, Blackthorn City!  If you're interested in meeting dragon masters, I'll show you around someday.  If we ever have the chance, I'd like you to show me around your hometown, too.  Maybe the source of your strength lies in your origins.\e"
+	
+	"\0\s[5]It’s nice following along with whatever you’re working on, %(username), even if I’m just keeping you company!\e"
+	
+	"\0\s[8]You're always working on such... interesting things when you're on here.  \s[0]I can't say I always understand it, but I'm very proud of you for working so hard!\e"
+	
+	"\0\s[0]Do you go back to your hometown sometimes?  I'm sure there are people there waiting for you to visit— and you might have some nostalgic reunions!  \w8My hometown is Blackthorn City, in Johto.  It's surrounded by mountains and can only be reached via a treacherous path...  But that probably wouldn't be much of a problem for someone like you!\e"
+	
+	"\0\s[0]Dragon Pokémon are spoken of in legends and known for being hard to raise.  \s[5]But if you can establish a connection with them and raise them well, their powers are superior!  \s[6]That's what I did with my Dragonite!\e"
+	
+	"\0\s[0]Some dragon pokemon are so strong, they're nearly on par with legendary pokemon themselves.  We call them pseudo-legendaries!  They're very rare and difficult to train, but they're intensely loyal.\e"
+	
+	"\0\s[8]I talk a lot about my hometown of Blackthorn City, but in truth I wasn't born there.  \s[0]I was actually born in Kalos, where my father was from.  We moved to my mother's home region of Johto when I was very young.  We've lived in Blackthorn ever since!\e"
+	
+	"\0\s[0]I may be well renowned as a dragon master, but did you know I also enjoy raising Magikarp as well?  \s[1]It's a bit of a guilty pleasure actually...  \s[0]But they come in so many different colors and patterns!  \s[6]And it's so satisfying seeing them turn into such a strong Pokemon when they evolve!\e"
+	
+	"\0\s[1]They may not be dragons or very strong, but I rather enjoy raising Magikarp...  \s[6]I love all the different colors and patterns they come in!  It's so satisfying to try to breed for rarest and strongest variants!\e"
+	
+	"\0\s[8]What's my favorite dragon type?  That's a tough question!  \s[0]I think I'd have to go with Dragonite!  \s[6]They're strong, fast, dependable, and they have the heart of a protector!  \s[3]Plus their Hyper Beam hits like no other!\e"
+	
+	"\0\s[8]What's my favorite pokemon move?  \s[6]Hyper Beam!  It's a strong offensive move that utilizes all of your pokemon's power!  It's one of the strongest moves there is!  Only the strongest trainers and their pokemon can use it well!\e"
+	
+	"\0\s[0]Do you have a favorite pokemon type, %(username)?  \s[3]I hope it's the dragon type!\e"
+	
+	"\0\s[0]The Dragons Den in Blackthorn City is a very exclusive clan of dragon trainer spanning back generations and generations.  You have to pass a series of rigorous trials to prove you're strong and dedicated enough to join.  Very few people are accepted into their ranks.\e"
+	
+	"\0\s[0]Even though my family have been part of the clan of dragon masters for generations, I still had to prove myself before I was able to join their ranks.  \s[6]It tooks years of hard work and dedication, but receiving my final cape was one of the proudest moments of my life.\e"
+	
+	"\0\s[0]Fun fact, I'm both the former and current Champion of the Indigo League!  A few years back, two mysterious young trainers were able to defeat me and claim my title, but both of them stepped down shortly after.  \s[3]They hadn't realized how much paper and politics goes into being a Champion, it seems!  It's a full-time job!\e"
+	
+	"\0\s[0]Did you know that I'm both the youngest ever Champion and the longest reigning Champion?  It's true!  \s[3]They ended up implementing a minimum age rule for trainers because of me, actually.  \w8.\w8.\w8.\s[2]How old am I?  \s[1]D-Don't ask that...\e"
+	
+	"\0\s[4]I love being Champion, but there's a lot more to it than just battling trainers.  Most of it is paperwork and meetings and talking with important figures.  It's surprisingly political.\e"
+	
+	"\0\s[0]Did you know that the Elite Four and the Champion are a long-standing tradition?  Long, long ago, the people would choose their strongest trainer from each direction to protect them and lead them.  They were known as the Elite Four and they were the rulers of this land until an even stronger trainer challenged them and triumphed, becoming the Champion.\e"
+	
+	"\0\s[6]It's my dream one day to be able to train one of every known dragon pokemon.  They're all so unique, and I'd love to get to know them better!\e"
+	
+	"\0\s[3]My cousin Clair is an excellent trainer and dragon master, but she's a bit too headstrong for her own good!  Sometimes when things don't go her way, she'll stubbornly refuse to accept it!\e"
+	
+	"\0\s[6]Do you like my cape?  \s[0]It was handmade for me as a sign of my acceptance into the ranks of dragon masters and as a trophy for completing te trials.  \s[6]It's weighted and warm!\e"
+	
+	"\0\s[0]One of the best places to train dragon pokemon is the Ice Path next to Blackthorn City.  \s[4]It's a litte bit dangerous, \s[0]but because it's the perfect counter to dragon pokemon, it's also perfect place to work on their weaknesses.\e"
+	
+	"\0\s[0]My Dragonite, Graoully, was my very first pokemon partner.  I received him as an egg from my grandfather.\e"
+	
+	"\0\s[0]When I was young, my father would always read me stories.  My favorite ones were the ones about Arthurian legend- about knights going on grand quests.  \s[3]I was so excited to be like them and go on a journey of my own!\e"
+	
+	"\0\s[0]When I was growing up, my father would often bring me to church.  \s[5]I loved seeing the stained glass windows and hearing the choir music...  \s[0]We would go extra early before service and he would teach me to read and play music.\e"
+	
+	"\0\s[0]Do you have a favorite instrument, %(username)?  Mine is the organ!  It's very deep and nostalgic to me.  It reminds me of my childhood.\e"
+	
+	"\0\s[0]Coming from a long line of dragon masters, I had a lot of expectations placed on my shoulders at a very young age.  I was considered a prodigy.  \s[6]I like to think I exceeded everyone's hopes~\e"
+	
+	"\0\s[0]My primary residence is the Indigo Plateau nowadays, but I still try to make time to visit my hometown in Blackthorn City when I can.\e"
+	
+	"\0\s[6]I love wearing capes!  They're so elegant and regal and practical!  Not only can they keep you warm and dry, they're a bold, unique fashion statement!\e"
+	
+	"\0\s[2]How many capes do I have?  \s[1]N-Next question...\e"
+	
+	// --------------------Expression statements------------------------------------------
+	
+	//"\0\s[2]This is my surprised pose.\e"
+	
+	//"\0\s[3]This is my awkward pose.\e"
+	
+	//"\0\s[5]This is my happy pose.\e"
+	
+	//"\0\s[6]This is my contented pose.\e"
+	
+	//"\0\s[7]This is my angry pose.\e"
+	
+	//"\0\s[8]This is my thoughtful pose.\e"
+	
+	//Here's dialogue with all of their poses so you can see them in action. Note how the \s number changes for each of them. They don't have to match of course, you can have one character happy and one character sad and do whatever you like. These are just examples you can rewrite as you like with your own dialogue.
+	
+	
+	//------------------------------------- Envelopes ----------------------------------------------------------------------------------------
+	//Here, the characters are using the %(username) envelope to use the user's name. More on envelopes in word.dic. You can use any envelope you want in dialogue, practically. Note that if your user hasn't set their username, they will be referred to as USER. You can also use %username (with no parentheses) to grab the user's name directly from SSP itself rather than have them tell your ghost specifically.
+	
+	
+	//You can use the pronouns set up during their first boot (see bootend.dic) or in the config menu (menu.dic) in sentences like this as well. You can see that the envelope %(heshe) replaces where he or she would be in the sentence, and so on for the rest of them. This makes it so they use the correct pronoun in the right place. If you don't have pronouns enabled on your ghost, you don't need to worry about these envelopes and shouldn't use them.
+	
+	//"\0\s[0]Here we'll use the envelope 'exampleenvelope' to show what it looks like in a balloon.\w8\0\s[0]%(exampleenvelope).\e"
+	
+	//As you can see, you can put any envelope from word.dic in here, as long as you properly format it as an envelope by putting a percent sign in front and putting it in parentheses. %(username), %(icecream), %(bunnies), whatever, this is up to you as long as you've defined it in word.dic. You can see how the values stored in the envelope appear in the balloon when the dialogue is called.
+	//Do note that you cannot put quotation marks in your dialogue. If you're using Notepad++ which you should be doing, you'll see the line break and turn black if you do. Use apostrophes instead.
+	
+	//"\0\s[0]Did you know I have a %(blanklist) on my main team?  It's true!  We've been partners for some time now.  Maybe one day you could meet them.\e"
+	
+	//And here are more examples using the blanklists I set up in word.dic.
+	
+	//"\0\s[0]Here we'll use the envelope 'usersfolder' to pretend to look at the user's files.  Hey, have you looked at %(usersfolder) lately?  No.\e"
+	
+	//You can use the usersfolder envelope creatively if you like, haha.
+	
+	//"\0\s[0]Here we'll use the envelope 'internalenvelope' to show an envelop containing another envelope.  %(internalenvelope).\e"
+	
+	//Here's an example using the internal envelope I mentioned in word.dic. Basically, a function within a function. More on that kind of thing on the coding page of the walkthrough.
+	
+	//"\0\s[0]Here is dialogue referring to Anchor 1.  Here is dialogue referring to Anchor 2 and Anchor 3.\e"
+	
+	//Anchor words are defined more in anchor.dic. Note here when you see this dialogue that Anchor 1, 2, and 3 become links when spoken, even if they weren't written as links in the dialogue in this file. This is why anchor words are convenient, you don't have to set up link code every time they say a certain word. Try clicking the links when they appear to see what they lead to. It'll give you an idea of exactly how anchors work.
+	
+	//-------------------------------------------- Double Envelopes --------------------------------------------------------------------------------
+	//If you've gone through word.dic, you may remember a list with two sets of values on each line. This is how you would call something like that! Technically, what I call a double envelope is really an array, or a stored list of values. You can pull certain things out of that list as you need, although it requires some specific formatting. For this example, we'll use the double envelope that cindysuke made that has a Korean word and its definition. This can be a bit complicated, so pay close attention.
+	//If this scares you too much, you can delete the whole thing.
+	
+	//note that this is enclosed in its own set of brackets
+	{
+	_team = teamname //Here, the envelope "lessonkor" (which is in word.dic) is stored as a new temporary value called _korean. You can name the new value anything you like. As a reminder, when coding, it goes "4 = 2 + 2" and not "2 + 2 = 4". The result always comes first!
+	//If you look at lessonkor in word.dic, you'll see it goes "Korean word, meaning". So "Korean word" is the first value in that array, and "meaning" is the second. Arrays always start at 0, as a note.
+	_pokemon = _team[0] //Now we make a temporary value called "_korword", which is what will store the Korean word. Since the Korean word is the first value in the array _korean which we just defined, then we can pull that value from the array with _korean[0]. [0] is telling it which entry in the array to take - in this case, the first one (again, arrays start at 0).
+	_pname = _team[1] //Now we make a temporary value called "_kormean", which is what will store the meaning of the Korean word. This is the second value in the array, so we can pull it out of _korean by using _korean[1].
+	
+	//Now we put it all together!
+	"\0\s[0]Did you know I have a %(_pokemon) on my team?  It's true!  Their name is %(_pname).  I hope you can meet each other one day!\e"
+	
+	//As you can see here, we then use the values we set above for _korword and _kormean up there in the dialogue as our new envelopes. If you're planning on using a double envelope/array like this, study how this works very carefully! If you're good with arrays, you can do a lot with this kind of thing, but I must admit I am terrible with arrays and they're still hard for me to wrap my head around, so I don't have much advice on how to do that kind of thing.
+	//The underscores in front of korword and kormean mean that the value is temporary, and will disappear when the dialogue has finished. More on this kind of thing on the coding page of the walkthrough.
+	
+	//Additional Note - You can't test this kind of dialogue in Script Input. You'll have to wait until it comes up naturally in your ghost's random dialogue.
+	}
+	//That's all for double envelopes! As mentioned, if this scares you, you can delete this chunk and you'll be fine.
+	
+	
+	
+	
+	//---------------------------------- Chains ---------------------------------------------------------------------------------------
+	//Chain dialogue is unique. A dialogue chain consists of multiple bits of dialogue that get called in order over a period of time.
+	
+	"\0\s[0]Do you go back to your hometown sometimes?  I'm sure there are people there waiting for you to visit— and you might have some nostalgic reunions!  \e:chain=hometownchain"
+	
+	//Note here that instead of ending the dialogue with the normal end tag of \e, it ends with \e:chain=achain. This will link down below to a chunk of code outside RandomTalk called achain. You can scroll down and find it now if you want. You can name your chain anything you want, it'd just follow the same format of \e:chain=yourchainsname. Once a dialogue has entered a chain, they won't say any other random dialogue until the chain is finished.
+	
+	
+	
+	
+	//--If statements
+	//You can put if statements in RandomTalk! They don't even need Else statements, unless you want to keep two sets of statements completely separate - for example, you have one pool of conversations for when there are two characters, and one for if there are three characters. You wouldn't want these to overlap, so you'd put one pool in the if statement and the other in the else. Most of the time though, you won't need an Else statement for these, since they'll mostly only be adding in dialogue if the if statement is true. 
+	
+	
+	//---------------------------------------- Time/Date Related Dialogue ----------------------------------------------------------------
+	
+	if month >= 12
+	{
+		"\0\s[0]December already?  I wonder if it's cold where you are...\e"
+		
+		"\0\s[0]The end of the year already?  My, time sure flies by.\e"
+		
+		"\0\s[0]So it's December now, hm?  Such a busy month.  You've got the holidays as well as the end of the year.  It always feels like everyone is rushing around trying to get things done.\e"
+	}
+	
+	//So you can use these to check for any number of situations. You can add as many or as few if checks if you want. You can delete these if checks too if you don't want them.
+	//You can also nest ifs within these, so you could check if it was the 25 of April in the morning for example. You can also add or take away dialogue from these as you like, so if you want to have five dialogue options for April or one for January, you can totally do that.
+	
+	
+	//This if checks what day of the week it is. You can check for any day or as many days as you want. Or none. It's up to you.
+	if weekday == 1
+	{
+		"\0\s[0]Monday, already?  My my, the weekend sure does fly by.\e"
+		
+		"\0\s[5]Ah, Monday again!  A great start to a new week.\e"
+		
+		"\0\s[0]The start of a new week!  Do you have any plans for the week, %(username)?\e"
+	}
+	
+	if weekday == 5
+	{
+		"\0\s[0]Ah, Friday!  We've reached the weekend!\e"
+		
+		"\0\s[0]We've finally made it to Friday!  Do you have any plans for the weekend, %(username)?\e"
+	}
+	
+	if weekday == 0
+	{
+		"\0\s[0]Sunday again?  Where did the week go?\e"
+		
+		"\0\s[0]Ah, Sunday...  Did you have a good week, %(username)?  Did you accomplish everything you wanted to?\e"
+	}
+	
+	//This if checks for the time of day as defined in bootend.dic. Do you remember the words used for each chunk of time in GetTimeSlot? These are the same words! You can check for all those times, or none of them and delete this if you want.
+	if timeslot == "earlymorning"
+	{
+		"\0\s[5]When the sun rises bright and strong, I can't help but feel it's the start of something new.\e"
+		
+		"\0\s[9]I love early mornings like this.  It's cool outside, I get to see the beautiful sunrise with my dragons, and I can look forward to another full day of training!\e"
+	}
+	
+	
+	//-------------------------------------------- Multiple Responses -------------------------------------------------------------------------------------
+	//If you've poked around menu.dic or string.dic or read the walkthrough, you may have seen me touch on setting multiple options for any one given bit of dialogue. This kind of dialogue follows much the same format.
+	
+	// { //Again, note the brackets around these unique bits of dialogue. Dialogue that's more complicated than just a single line of "dialogue/more dialogue/more dialogue/end" usually needs to be put in brackets like this. 
+	
+	// "\0\s[0]I am asking you a generic question, Triangle. Generic question?\w8\1\s[10]"
+	// //Notice that the last few tags set up Triangle's pose before going into his text below. You don't have to do this if you want each response to have its own pose, but if he'll have the same expression regardless of what he's saying, you might as well save yourself the work. Note this does not end with \e either, since the dialogue isn't done yet.
+	// -- //You've probably seen these double dashes before in other .dic files. In this case, these dashes enclose a set of multiple responses. More on double dashes in the coding page on the walkthrough site.
+	// "This is my first response."
+	// "This is my second response."
+	// "This is my third response."
+	// "This is my fourth response."
+	// "This is my fifth response."
+	// "This is my sixth response."
+	// //As you can see here, there are six potential replies Triangle might have to Girl's question. Each time this dialogue is called, he will randomly select one response from these six.
+	// -- //The closing set of dashes for his dialogue options.
+	// "\w8\0\s[0]\n\n[half]" //Now we're going back to Girl to set up for her multiple responses in return. This line of tags mostly just sets up for what she will say. Like above, you can see her pose is set in here with \s[0], so she'll have the same pose for each response, and the consistent spacing with \n\n[half].
+	// -- //opening dashes
+	// "First response to your response."
+	// "Second response to your response."
+	// "Third response to your response."
+	// "Fourth response to your response."
+	// //Following the same pattern as above, Girl will randomly reply with one of these bits of dialogue. Note that these responses are also randomly chosen, so it may go Triangle says response one, Girl says response three, or Triangle says response four, Girl says response two, or so on and so forth. So make sure the exchange will still make sense regardless of what either of them might say.
+	// -- //closing dashes
+	// "\e" //Dialogue ends
+	// }
+	
+	//Here's another example of multiple responses. This one will let you randomly choose something to say in the middle of a sentence.
+	
+	// {
+	// "\0\s[0]Say either black or white.\w8\1\s[10]What if I say " 
+	// -- //opening dashes
+	// "green"
+	// "red"
+	// "purple"
+	// "orange"
+	// "yellow"
+	// "\s[18]magenta" //Notice here I added a tag for his thoughtful pose. If he chooses magenta, he'll do this pose. You can set up individual expressions for each potential choice this way.
+	// -- //closing dashes
+	// " instead?\w8\0\n\n[half]\s[9]Then you're not really cooperating.\w8\1\n\n[half]\s[15]Sounds about right.\e" //dialogue ends
+	
+	// //You can see that this follows the formula of the above, although there's only one set of multiple responses in here, then Triangle continues with his sentence. You can use this feature in many different ways if you're creative.
+	// }
+	 
+	//---------------------------------- Formatting Examples -------------------------------------------------------------------------------------
+	//"\0\s[0]\f[height,20]These words are really large.\f[height,default]\w8\1\s[10]These words are a normal size. \w8\f[height,6]These words are small.\f[height,default]\e"
+	
+	//You can use other fancier SakuraScript bits in your dialogue if you want to get font effects, although I won't get too much into them here. In this case, \f[height,20] changes the height of the font, in this case to 20 or to 6, and then \f[height,default] changes them back to normal. I touch more on this in the SakuraScript page of the walkthrough.
+	
+	//"\0\s[0]\f[strike,true]These words are struck out.\f[strike,default]\w8\1\s[10]\f[sub,true]These words are a subscript.\f[sub,false] \f[sup,true]These words are a superscript.\f[sup,false] \f[underline,true]These words are underlined.\f[underline,default] \f[bold,true]These words are bold.\f[bold,false] \f[italic,true]These words are italic.\f[italic,false] \f[color,186,146,112]These words are a color.\f[color,default] This tag would return to default.\f[default]\e"
+	
+	//Here's a list of similar tags you may find useful. You can see they function much like <b> or <i> tags in html. You just enclose the piece of text you want to change with them. Note that they start with \f[word,true] to turn it on, then \f[word,false] or \f[word,default] to turn it off. I assume you can tell what the tags do by the text they enclose.
+	//For the \f[color] tag, the three colors listed are the RGB values of the color you want to use for your text. Change them to whatever color you want to use. \f[default] can be an easy way to quickly go back to the default word setting in your balloon after messing with colors and effects a lot.
+	
+	//"\0\s[0]Here's a link to a website. \_a[http://www.website.com/]Right here.\_a\e"
+	
+	//Along the same lines as above, you can use \_a[address] to link to certain things. Note that it ends with \_a to close the link. It's very similar to <a href=address> and </a> in html.
+	
+	//"\0\s[3]\1\s[15]\_sWe are saying this dialogue at the same time.\e" 
+	
+	//This dialogue uses a unique tag, \_s. \_s makes it so both characters will speak the same words at the same time. Try it in Script Input to see how it works. I talk about it a little more on the walkthrough page for scripting.
+	
+	//And so we reach the end of randomtalk! I again reiterate, YOU CAN AND SHOULD WRITE YOUR OWN NEW LINES OF DIALOGUE FOR THIS! I included some random example phrases here for you just to replace the text and see what you can do, but there really aren't that many. You'll want to add more, and doing so is easy! Just copy and paste a line and redo the text. Repeat as many times as you want with as many conversations as you want. You can always expand this section!
+}
+
+WindowWatch : nonoverlap_pool
+{
+	//if AppCheck(BROWSE) == 1
+	if ProcessCheck(BROWSEexe,BROWSE) == 1
+	{
+		//"This is a response to running a browser,\w8 %(appName)."
+		
+		"\0\s[0]There's so much you can do on the internet!  Learn, shop, travel...  The possibilities are endless!\e"
+		
+		"\0\s[8]%(appName), hm?  \s[0]I don't use the internet very much, but I can appreciate all the information it holds!\e"
+		
+		"\0\s[0]What are you browsing today?  Are you on social media?  Or perhaps you are studying?\e"
+		
+		"\0\s[0]What's your favorite site to visit, %(username)?  Do you prefer learning from articles?  Posting and chatting with others on forums?  Or maybe you like keeping up to date with others on social media?  There's so many options to choose from!\e"
+		
+		"\0\s[8]%(appName), hm?  I don't believe I've ever used it...  We use FireFennekin where I'm from!\e"			
+		
+	} 
+
+	//if AppCheck(MUSIC) == 1
+	if ProcessCheck(MUSICexe,MUSIC) == 1
+	{
+		//"This is a response to a music player, %(appName)."		
+		
+		"\0\s[3]You have %(appName)?  \s[0]What kind of music do you listen to?  I'd love to listen along!\e"	
+		"\0\s[8]Such an interesting song you're listening to!  I don't think I've ever heard it!\e"
+		"\0\s[5]Oh!  I quite like this song!  It fills me with power!\e"
+		"\0\s[6]What a wonderful melody...  I could listen to this all day.\e"
+		"\0\s[8]So this is the kind of music you listen to?  Intriguing!\e"
+		"\0\s[6]Quite catchy...\e"
+		"\0\s[0]I'm not much for music myself, but I enjoy listening along with you!\e"
+		"\0\s[0]I don't listen to music much, but playing music can be quite relaxing!  I don't have the time to play as much as I used to, but I play the organ occasionally.\e"
+		"\0\s[0]You should consider listening to classical music!  Not only is it elegant, it's excellent for psyching you up to tackle whatever task is in your way!\e"
+		"\0\s[8]This music is.\w8.\w8.\w8.  interesting...\e"
+		"\0\s[0]Do you have a favorite instrument, %(username)?  Mine is the organ!  It's very deep and nostalgic to me.  It reminds me of my childhood.\e"
+		"\0\s[6]Hmm hmm hmmm~\e"
+	} 
+
+	//if AppCheck(ART) == 1
+	if ProcessCheck(ARTexe,ART) == 1
+	{
+		//"%(appName)"
+
+		"\0\s[5]Ah, %(appName)!  So you're an artist then?  \s[0]I'd love to see the things you make some time.\e"
+		"\0\s[0]It's quite nice getting to see all the beautiful things you create.  \s[3]Why, it almost makes me want to pick up a pencil for myself!"
+		"\0\s[5]I see you have %(appName) open!  What are you creating today?  Just a quick sketch?  Or trying to create your newest masterpiece?\e"
+		"\0\s[3]That looks wonderful so far, %(username)!  Great job!\e"
+		"\0\s[2]Oh!  You missed a spot, %(username)!\e"
+		"\0\s[5]You should draw a dragon!  I'm sure you'd be able to capture their magnificence perfectly!\e"
+		"\0\s[0]Perhaps you could draw me next, %(username)?  \s[6]Make sure my cape flows elegantly in the wind!\e"
+		"\0\s[0]Say, %(username), when you create do you prefer colorful pieces or something more monochrome?  I personally enjoy colorful artwork myself!\e"
+	}
+
+	//if AppCheck(VECTOR) == 1
+	if ProcessCheck(VECTORexe,VECTOR) == 1
+	{
+		//"%(appName)"
+		
+		"\0\s[8]%(appName)...  I've never tried to create anything with vectors, but it's beautiful in its own right.  The crispness of the graphics and the mathematics behind them...\e"
+		"\0\s[0]Working with vectors today, are we?  Trying to create a logo?  Or the guidelines for a pin or a patch?  Or perhaps you just grew tired of the contraints of raster and traditional artwork.\e"
+		"\0\s[8]Vector artwork seems a little tricky to work with, \s[0]but it must be worth it so be able to infinitely scale it to whatever size you need!  There's no worries of it getting too pixelated.\e"
+	}
+
+	//if AppCheck(ANTIVIRUS) == 1
+	if ProcessCheck(ANTIVIRUSexe,ANTIVIRUS) == 1
+	{
+		//"%(appName)"
+		"\0\s[5]Ah, %(appName)!  The computer's valiant defense against wrongdoers!  I'm glad you're taking steps to keep yourself and your computer safe!\e"
+		
+		"\0\s[0]%(appName)?  Are you running a scan?  It's always good to scan your computer periodically in case something snuck past your computer's defences.  You can never be too careful!\e"
+	}
+
+	//if AppCheck(TEXT) == 1
+	if ProcessCheck(TEXTexe,TEXT) == 1
+	{
+		//"%(appName)"
+
+		"\0\s[5]%(appName)?  Are you a writer, %(username)??  That's fantastic!  What do you write about?  Grand stories of heroes facing off against dastardly foes?  \s[0]Or perhaps you're writing something a little more intellectual?\e"
+		"\0\s[0]%(appName), hm?  I'm not much of a writer myself, but I have great appreciation for the stories others have made.  \s[6]My favorite stories are those of Arthurian legend!  \s[0]Tales of valiant knights and quests... It's so inspiring!\e"
+		"\0\s[0]What are you writing about, %(username)?  A fantastical story?  A comprehensive report?  Or maybe you're just taking notes.\e"		
+	}
+
+	//if AppCheck(TABLES) == 1
+	if ProcessCheck(TABLESexe,TABLES) == 1
+	{
+		//"%(appName)"
+
+		"\0\s[5]Ooh, is that %(appName)??  \s[0]It's so useful for keeping things organized.  You can catalogue just about anything you could ever want in this program.  Or to do math, I suppose.\e"
+		"\0\s[0]I quite like the organized look of %(appName)...  Not only does it make things easier to find, there's a certain beauty in the rows and table of data...\e"
+	}
+
+	//if AppCheck(SLIDES) == 1
+	if ProcessCheck(SLIDESexe,SLIDES) == 1
+	{
+		//"%(appName)"
+
+		"\0\s[5]Ahh, %(appName)!  I've used that for my own work at the League!  There's something so satifying about putting together a presentation and showing it to others.  \s[6]Especially when you're right.\e"
+		"\0\s[6]I quite enjoy a good presentation myself.  You can put so much creativity and life into the slides.  And all the information you get to share!\e"
+	}
+	
+	//if AppCheck(CODING) == 1
+	if ProcessCheck(CODINGexe,CODING) == 1
+	{
+		//"%(appName)"
+
+		"\0\s[8]%(appName)?  I'm not familiar with coding myself.  It goes right over my head unfortunately.\e"
+		"\0\s[0]Coding today, are we?  What are you working on?  A website?  An app?\e"
+		"\0\s[0]Ah, coding, hm?  I wish you the best of luck in your endeavors!  Don't forget to close your brackets!\e"
+	}
+	
+	//if AppCheck(OTHER) == 1
+	if ProcessCheck(OTHERexe,OTHER) == 1
+	{
+		//"%(appName)"
+
+		"\0\s[5]%(appName)!  Talking to friends, are we?  I'd love to meet them one day!\e"
+		"\0\s[0]%(appName), hm?  Who are you talking to today?  I hope you're having a nice conversation!\e"
+		"\0\s[0]%(appName)?  What kind of servers do you prefer, large and lively?  Or small and intimate?\e"
+		"\0\s[8]%(appName)?  Do you talk online a lot?  Or do you prefer to stick to the sidelines and let everyone else do the talking?\e"
+	}
+	else; RandomTalk
+}
+
+SelfCare : nonoverlap_pool
+{
+	//self care reminders
+
+	"\0\s[5]Remember to drink some water if you haven't in a while!  You need to be properly hydrated if you're to face all your trials for the day!\e"
+
+	"\0\s[0]Perhaps it's time to drink some water?  Hydration is key!"
+
+	"\0\s[0]Have you eaten recently?  If not, it might be time to make a meal, or get a small snack at the very least.  You need fuel to face the day!\e"
+
+	"\0\s[0]Have you taken your meds yet today?  There's no shame in needing to take them if they help you to function properly.\e"
+
+	"\0\s[0]Have some water, %(username)!  We need plenty of it to stay in tip-top shape!\e"
+
+	"\0\s[0]Have you eaten something yet?  Perhaps it's time for a little snack!\e"
+
+	"\0\s[0]Have you had some water lately, %(username)?  \s[9]And no, soda and juice do not count."
+
+	"\0\s[0]Did you sleep well?  If not, perhaps a nap will help.  There's no shame in needing more rest.\e"
+
+	"\0\s[0]Have you been outside lately?  If not, perhaps it's time to step outside for a little bit?  Sunshine can do wonders for your health and mood!\e"
+
+	"\0\s[4It's not healthy to stare at a screen all day... \s[0]Maybe you should step away for a minute?  Have a look outside?\e"
+	
+	"\0\s[0]The outside is quite beautiful!  Make sure you take the time to appreciate it and take a break!\e"
+	
+	"\0\s[0]Have you been outside lately?  If not, perhaps it's time to step outside for a little bit?  Sunshine can do wonders for your health and mood!\e"
+
+	"\0\s[4]You've been working quite hard... Have you done anything fun lately?  Resting and play are just as important as work.\e"
+
+	"\0\s[8]Water is important, but sometimes it can get tiresome drinking the same thing day in and day out.  \s[0]Try adding some fruit or flavoring to it for a change of pace.\e"
+
+	"\0\s[5]It's time to get a little adventurous!  Try something new!  Something that you've always wanted to try but never got the chance to yet!\e"
+
+	if timeslot == "evening" || timeslot == "latenight" || timeslot == "midnight"
+	{
+		"\0\s[4]It's rather late... Perhaps you should rest soon?\e"
+		"\0\s[4]You should consider going to sleep soon.  Rest is crucial for functioning at your best.\e"
+		"\0\s[4]Don't push yourself too hard, %(username)... Remember to take a break and get some rest if you need it.\e"
+	} 
+	else
+	{
+		"\0\s[2]How are you feeling, %(username)?  Do you need a break?  Perhaps some water?\e"
+		"\0\s[0]It's time for a break!  Go ahead, stand up and stretch and walk around!  I'll be waiting right here for when you return.\e"
+	} 
+
+	"\0\s[4]Have you been on social media a lot lately?  I understand that the internet is endlessly entertaining, but it can be overwhelming at times, too.  Remember to log off and reconnect with the real world from time to time.\e"
+
+	"\0\s[5]Remember to keep your space neat and tidy!  Cleanliness is next to godliness after all!"
+
+	"\0\s[0]Do you enjoy coffee or tea, %(username)?  I enjoy tea myself.  It's quite relaxing.  Perhaps you could have some as well?"
+
+	"\0\s[4]It's important to keep up-to-date on the news and goings-on of the world, but too much bad news can leave you feeling small and powerless... There's no shame in stepping away if it becomes too much for you."
+
+	"\0\s[4]I may not be able to respond, but you can always talk to me!  Sometimes all you need is to vent your troubles to a sympathetic ear.  It might help you feel better."
+
+	"\0\s[5]Make sure to get up and stretch from time to time!  You can't expect to get stronger by sitting in a chair all day!"
+}
+
+//---------------------------------------------- Chains -----------------------------------------------------------------------------------------------
+//Here is where you will put your bits of chain dialogue. They are outside of OnAiTalk, which makes them a bit more flexible as I mentioned above.
+//Each chain function will go through each part of the chain in order even if it's in one function, until it goes to \e:chain=end which will end the chain, as you could probably guess. So you can put the entire chain dialogue into one place.
+//You don't have to make chains if you don't want to! This is just for reference if you ever have a conversation come up where it could be handy.
+
+hometownchain
+{{CHAIN
+	//this will happen the first time the chain is called
+	//this will be the last piece of dialogue in the chain, then they will go back to their normal dialogue
+	"\0\s[0]My hometown is Blackthorn City, in Johto.  It's surrounded by mountains and can only be reached via a treacherous path...  But that probably wouldn't be much of a problem for someone like you!\e:chain=end"
+}}CHAIN
+
+//Pay careful attention to the CHAIN text and double brackets for these. Double brackets, CHAIN, dialogue, double brackets, CHAIN. If you are planning on making chains, I'd recommend just copying and pasting the chain example here and changing the dialogue and name of the function as you need. Less likely for mistakes to happen, you know?
+//Note also it ends with \e:chain=end, basically ending the chain.
+
+blackthornchain
+{{CHAIN
+	"\0\s[0]If you're interested in meeting dragon masters, I'll show you around someday.  If we ever have the chance, I'd like you to show me around your hometown, too.  Maybe the source of your strength lies in your origins.\e:chain=end"
+}}CHAIN
+
+//You can make chains as long or as shot as you want! Just make sure to end the chain when you're done.
+
+
+//Alright, we're done with the random conversations for now, but there are a few other things in aitalk that we'll need to fill out too.
+
+
+//------------------------- OnMinuteChange (Time Change Dialogue) -------------------------------------------------------------------------------------
+//These are time-related bits of dialogue for your ghost to say. If any of them look interesting, uncomment them! I commented them out for simplicity's sake, but it's up to you if you want to use them or not!
+
+//OnMinuteChange
+//{
+//HourCheck
+//--
+//if mikireflag == 1
+// 	{
+// 		MikireTalk
+//	}
+//}
+
+
+//Keeps track of if an hour has passed. Just ignore this.
+HourCheck
+{
+if passmin >= 59
+	{
+		passmin = 0
+		passhour = passhour + 1
+	}
+}
+
+
+OnMinuteChange //This is what will trigger time-based dialogue for your Ghost.
+ {
+	HourCheck //checks to see if an hour has passed, ignore it
+	--
+ 	if minute == 0 //These ifs will check what time it is. Here, it's seeing if the minute equals zero...
+	{
+ 		if hour == 12 //And the hour equals 12, meaning it's noon. You can change this to some other hour if you want.
+		{
+ 			"\0\s[0]It's noon!  Make sure to take a break and eat a proper lunch if you haven't already!\e"
+			//Replace with appropriate dialogue as you want.
+		}
+ 		elseif hour == 0 //If the hour is zero, aka midnight. Again, you can change this to whatever hour you want to check for. This section is flexible! You can also add more elseifs if you want to check for other hours.
+		{
+ 			"\0\s[0]It's midnight!\e"
+ 			"\0\s[0]Midnight, already?  Time sure flies when you're working hard.\e"
+ 			"\0\s[0]It's the start of a new day!  And by that I mean it's midnight.\e"
+			//Then replace the dialogue with what's appropriate.
+		}
+		else
+		{
+			"\0\s[0]It is now %(hour12)'o clock!\e"
+			//%(hour12) stores the time. This is a general top of the hour notification. I personally like this because it helps me keep track of time when I've been working on something, so when a ghost is all "Hey it's 3 o clock" I can be like woah really when did that happen. If you think this is annoying though, you can just delete this bit of dialogue to leave this else statement blank, or leave "" in here instead.
+		}
+	}
+	//You can also check for more specific times! For example...
+	elseif hour == 23 && minute == 55 //this checks to see if the hour is 23 and the minutes are at 55... essentially, 11:55 pm.
+	{
+		"\0\s[0]5 minutes to midnight.\e"
+		//Replace with what you like!
+	}
+	elseif hour == 7 && minute == 30 && weekday == 0 //Here, it's checking for a specific time on a specific day. You can add things to your time checks just like this by using the AND operator, && (more about operators at the walkthrough page). This adds up to 7:30 am, Sunday. If you have a favorite TV program on at some time, you could have your ghost comment on when it comes on like this.
+	{			
+		"\0\s[0]It's 7:30 on Sunday.\e"
+		//Replace with what's appropriate.
+	}
+	//If you're not interested in these more specific checks, you can delete those last two elseifs and just leave the one for minute==0, or clear them all out as mentioned above, although leave in the HourCheck and mikireflag bits.
+	
+	//Advanced users who want to enable the off-screen boundary check = Remember mikireflag up in OnAiTalk? This is the flag that checks for that. You'll want to uncomment this here so it can trigger the dialogue.
+	
+	//Don't touch this part.
+	elseif mikireflag == 1
+ 	{
+ 		MikireTalk
+	}
+ }
+
+//------------------------------------------ OnSecondChange (checking if character off screen) --------------------------------------------------------------
+//Like the above, this handles what happens every time a second goes by. Most of this you will not have to touch.
+
+OnSecondChange
+ {
+	if passsec == 59
+ 		{
+	 	passsec = 0
+ 		passmin = passmin + 1
+		}
+ 	else
+ 		{
+	 	passsec = passsec + 1
+		}
+		
+		
+	//Advanced users - these next bits are related to the mikireflag and when a character is off screen. Uncomment these if you want to use this feature. 
+		
+	if mikireflag == 0 && reference1 == 1 //Dialogue for putting them off the screen. You could make this a unique line if you wanted (Like "Hey! What are you doing?"), and have MikireTalk below be for if they continue to be offscreen ("Why are you leaving me out here? Help!" for example). I'll add an example bit of dialogue and comment it out, you can uncomment it and use it if you like, or just leave it out and use MikireTalk below.
+	{
+		"\0\s[9]You, uh, appeared to have moved me off screen.  You know you can just make smaller if I'm in the way, right?"
+		
+		MikireTalk
+	}
+	if mikireflag == 1 && reference1 == 0 //Dialogue for coming back on the screen
+	{
+		EndMikireTalk
+	}
+	mikireflag = reference1 //reference1 is if the ghost is offscreen or not
+	
+	
+	//This dialogue is for when the two characters are overlapping each other. Uncomment this if you want to have dialogue for it!
+	
+	// if reference2 == 1
+	// {
+ 		// "\0\s[0]Me and Triangle are overlapping.\w8\1\s[19]That's strange since your resolution is %screenwidthx%screenheight, %(username). Shouldn't we have enough space?\4\e"
+		
+		// //You can see here the use of two envelopes, screenwidth and screenheight, to tell the user their resolution. Oddly, they are not in parentheses. I'm not sure why this is, but they don't display right otherwise. An odd quirk with these two envelopes.
+		// //Note also how Triangle moves away at the end of the dialogue. This is due to the \4 tag. That will make any one character move away from the other if they are able. I talked about this tag and its counterpart tag \5 in the SakuraScript page on the walkthrough.
+	// }
+ }
+
+ //------------------------------------------------ MikireTalk (Off screen Dialogue) ---------------------------------------------------------------------
+ //MikireTalk is dialogue for when your main character is off-screen. Like if you dragged Girl over to the side of your monitor until she was partially concealed by it. Advanced users, make sure to uncomment this along with all the other mikire related things in here I've pointed out.
+ 
+MikireTalk
+ {
+	"\0\s[4]Hello?  Can you move me back please...?  Try pushing Ctrl-Shift-F12."
+	//Note the hotkey combo Triangle mentions. He's telling the truth, that should bring her back on the screen.
+ }
+
+ //For after you bring the character back on screen.
+ 
+EndMikireTalk
+ {
+	"\0\s[6]Ah, much better!  It's good to be back.\e"
+ }
+
+
+//************************************************************** OnSurfaceRestore *****************************************************************
+//OnSurfaceRestore is a handy function. What this does is that after a short period of time, the ghost will go back to its default pose, so you won't have a ghost stuck in one expression for too long. It's also helpful if you've made one of the characters disappear using \s[-1] in dialogue and didn't bring them back at the end of it. This will do that for you.
+//I'm going to comment out the if/else statements in this because the circumstances in which they'd come up seem pretty unlikely and unnecessary if you're just going to be making a simple ghost. You can just leave this function alone and move on if you want. However, if you do want to use them, just uncomment the lines by deleting the slashes and fill in the info as you need.
+
+//*********************Advanced User Info*******************************
+//You can put if statements in OnSurfaceRestore to make exceptions for certain poses, or to make sure that once they're in a certain pose, they stay in that pose. For example, if you turn my Hunter and Smoker ghost into eggplants, there's a check for the their eggplant pose numbers to make sure they STAY eggplants when OnSurfaceRestore is called.
+//You can also use OnSurfaceRestore to clean up things that might be left on the screen, primarily from using p[number]\s[] to call up other objects or characters. Just make sure to add a p[number]\s[-1] to OnSurfaceRestore, and that should get rid of it each time the ghost cleans itself up.
+//***********************************************************************
+
+OnSurfaceRestore
+ {
+ 	//if reference0 == 4 || reference0 == 6 //This is checking what poses they are in. This looks to see if Girl is in pose 4 or pose 6, since she is reference0.
+ 	//{
+ 	//"\1\s[10]You're in a sad pose.\w8\0\s[0]I'll go back to normal then.\e"
+ 	//}
+ 	//elseif reference1 == 14 || reference1 == 16 //This is doing the same but for Triangle, since he's reference1. It looks to see if he's in pose 14 or post 16.
+ 	//{
+ 	//"\0\s[0]You look sad.\w8\1\s[10]I'll go back to normal.\e"
+ 	//}
+ 	//else
+ 	//{
+	"\0\s[0]\1\s[10]\e"
+	//}
+ }
+
+ 
+ //----------------------------------------- OnKeyPress (shortcut keys) -------------------------------------------------------------------------------------
+ //This defines the hotkeys your ghost will use. You can change these to whatever you want, but I don't really know why you would. I'd just leave this alone. Advanced Users can add new hotkeys attached to whatever function if you want.
+ 
+OnKeyPress
+{
+	if reference0 == "t"
+	{
+	OnAiTalk
+	}
+	elseif reference0 == "r"
+	{
+	OnLastTalk
+	}
+	elseif reference0 == "f1"
+	{
+	"\![open,readme]"
+	}
+}
